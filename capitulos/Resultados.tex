@@ -1,0 +1,1120 @@
+\chapter{RESULTADOS}
+\label{Resultados}
+
+O \textit{Alpha Restful} facilita e automatiza a implementação de 5 funcionalidades que, por causa dos motivos descritos anteriormente, podem ser complexas de serem desenvolvidas no \textit{MongoDB} sem o uso de um framework. Para cada funcionalidade, será exemplicado sua implementação sem o uso do \textit{Alpha Restful} e, posteriormente, com o uso desse framework. Para o detalhamento dessas funcionalidades, será utilizado como base a modelagem de dados exemplificada pelos seguintes documentos normalizados:
+
+\begin{lstlisting}[language=json, caption={Documento da Casa de Número 1B}]
+{
+    "_id": 10,
+    "rua": "Rua Castelo branco",
+    "numero": "1B"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento da Casa de Número 1089}]
+{
+    "_id": 20,
+    "rua": "Rua Pompel",
+    "numero": "1089"
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Eduardo}}]
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": [{
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "id": 20,
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }]
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Emanuel}}]
+{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "id": 10,
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "id ": 20,
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+}
+\end{lstlisting}
+
+\section{Junção de Documentos}
+
+Assim como foi visto na seção \textit{2.2.6}, as vezes, documentos que foram completamente ou parcialmente normalizados precisam ser unidos por meio de seus relacionamentos. A junção de documentos pode ser feita de maneira automática com a utilização do \textit{\$lookup}, \textit{DBRef}, ou do \textit{populate} do \textit{Mongoose}, porém estas abordagens possuem algumas limitações.
+
+\subsection{\textit{\$lookup}}
+
+O \textit{\$lookup} é uma operação disponibilizada de forma oficial pelo \textit{MongoDB}. Tal operação se responsabiliza por unir dois ou mais documentos relacionados. Após tal união, pesquisas podem ser realizadas sobre esses dados e valores podem ser agrupados e ordenados. Para unirmos as coleções de Pessoas e Casas, ignorando os atributos de relacionamento, a seguite operação poderia ser feita:
+
+\begin{lstlisting}[style=ES6, caption={Junção de Documentos com \textit{\$lookup} Com Omissão}]
+    let UNIAO = await db.collection("pessoas").aggregate([
+        { $lookup: {
+            from: "casas",
+            localField: "casas.id",
+            foreignField: "_id",
+            as: "casas"
+        }}
+    ]).toArray()
+\end{lstlisting}
+
+A opção ``\textit{from}'' contém o nome da coleção de documentos relacionada com a coleção de pessoas. O ``\textit{localField}'' contém o nome do atributo que possui o identificador da entidade relacionada, contido no documento da coleção de pessoas. O ``\textit{foreignField}'' contém o nome do atributo que possui o identificador da entidade relacionada, contido no documento da coleção de casas. A opção ``\textit{as}'' possui o nome do atributo que conterá todos os atributos da entidade relacionada. Opós essa operação, a  variável ``UNIAO'' conterá o seguinte resultado:
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos com Omissão}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": 10,
+            "rua": "Rua Castelo Branco",
+            "numero": "1B"
+        },
+        {
+            "_id": 20,
+            "rua": "Rua Pompel",
+            "numero": 1089
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": [{
+        "_id": 20,
+        "rua": "Rua Pompel",
+        "numero": "1089"
+    }]
+}]
+\end{lstlisting}
+
+Observa-se que os atributos ``valorMensal'' e ``quantidadeMeses'' não encontram-se no resultado da operação feita anteriormente. Isso ocorre porque o \textit{\$lookup} sobrescreve o atributo ``casas'' por todos os atributos presentes no documento de Casa. Pode-se observar também que o identificador (\textit{\_id}) da relação é substituída pelo identificador presente na própria entidade. Essa omisão de atributos pode ser um incoveniente, caso seja necessário obter ou realizar operações nos atributos que estão sendo omitidos.
+
+Para a utilização do \textit{\$lookup} sem a omissão de tais valores, uma codificação mais complexa e menos intuitiva tornaria-se necessária. Uma possível codificação para isto seria:
+
+\begin{lstlisting}[style=ES6, caption={Junção de Documentos sem Omissão}]
+    let UNIAO = await db.collection("pessoas").aggregate([
+        { $unwind: "$casas" },
+        { $lookup: {
+            from: "casas",
+            let: { casas: "$casas" },
+            pipeline: [
+                { $match: { $expr: {
+                    $eq: [ "$_id", "$$casas.id" ]
+                }}},
+                { $addFields: {
+                    _id: "$$casas._id",
+                    id: "$$casas.id",
+                    valorMensal: "$$casas.valorMensal",
+                    quantidadeMeses: "$$casas.quantidadeMeses"
+                }}
+            ],
+            as: "casas"
+        }},
+        { $group: {
+            _id: {
+                _id: "$_id",
+                nome: "$nome",
+                idade: "$idade"
+            },
+            casas: { $push: "$casas" }
+        }},
+        { $project: {
+            _id: "$_id._id",
+            nome: "$_id.nome",
+            idade: "$_id.idade",
+            casas: { $reduce: {
+                input: "$casas",
+                initialValue: [],
+                in: { $concatArrays: [ "$$value", "$$this" ] }
+            }}
+        }}
+    ]).toArray()
+\end{lstlisting}
+
+Para adicionar os atributos de relacionamento dentro dos objetos de casa, tornou-se necessário utilizar-se de alguns artifícios do \textit{MongoDB}, manipulando a união em baixo nível. Isso tornou-se necessário pois os identificadores das casas estão dentro de uma lista. Se uma pessoa podesse, no máximo, ter uma única casa, uma codificação mais simples poderia ser realizada. Bastaria para isso usar o primeiro exemplo de código apresentado sobre \textit{\$lookup} e apenas colocar na opção \textit{``as''} do \textit{\$lookup} um outro caminho que não sobrescreveria nenhum atributo já existente. Após a execução do código anterior, a variável ``UNIAO'' obterá o seguinte resultado:
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos com \textit{\$lookup}}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "id": 10,
+            "rua": "Rua Castelo Branco",
+            "numero": "1B",
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "id": 20,
+            "rua": "Rua Pompel",
+            "numero": 1089,
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": {
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "id": 20,
+        "rua": "Rua Pompel",
+        "numero": "1089",
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }
+}]
+\end{lstlisting}
+
+Pode-se observar que a implementação feita para obter uma simples junção de documentos pode ser complexa, sendo que tais operações são mais simples e intuitivas usando o SQL. A complexidade aumenta caso deseje-se fazer uniões em cascata, ou seja, unir documentos, que foram unidos com outros documentos. Quanto maior for o nível de uniões a serem feitas, mais complexo o código fica, podendo facilitar a ocorrência de erros humanos de codificação.
+
+\subsection{\textit{DBRef}}
+
+O \textit{DBRef} é um padrão para referenciar outros documentos de outras coleções. Essa convenção tem a finalidade de armazenar o nome da coleção relacionada (\textit{\$ref}), o identificador do documento (\textit{\$id}) e o nome do banco de dados na qual essa coleção está contida (\textit{\$db}). Se o \textit{\$db} não for informado, assume-se que a coleção está presente no banco de dados do documento que o \textit{DBRef} reside. No exemplo a qual está sendo tratado, as pessoas registradas no sistema poderiam se relacionar com suas casas da seguinte forma:
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Eduardo}}]
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": [{
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "$id": 20,
+        "$ref": "casas",
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }]
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Emanuel}}]
+{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "$id": 10,
+            "$ref": "casas",
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "$id": 20,
+            "$ref": "casas",
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+}
+\end{lstlisting}
+
+Pode-se obervar que o \textit{DBRef} é utilizado quando o identificador do documento relacionado é armazenado em \textit{\$id} e quando está presente o atributo \textit{\$ref}, contendo o nome da coleção. Essa padronização é utilizada por algumas bibliotecas e frameworks para disponibilizar recursos de união de documentos automáticas. Nesse caso, uniões de uniões de documentos poderiam ser feitas automaticamente de forma simples, dependendo da ferramenta que está sendo utilizada para o desenvolvimento. Esses recursos provenientes do \textit{DBRef} não está disponível em todas as linguagens, e cada biblioteca ou framework pode tratar isso de forma diferente.
+
+Os atributos de relacionamento (``\_id'', ``valorMensal'', ``quantidadeMeses'') não necessariamente são tratados pela biblioteca ou framework utilizado, podendo eles serem ignorados. Nesse caso, os dados precisariam ser remodelados para extrair esses atributos para outro lugar. Uma maneira de fazer isso seria criar uma nova coleção de documentos auxiliares. Tais documentos armazenariam os atributos de relacionamento e o identificador da entidade relacionada. Depois seria necessário fazer um \textit{DBRef} com o novo documento criado. Caso esses documentos auxiliares sejam aplicados na modelagem exemplo trabalhada nessa seção, os documentos se pareceriam com:
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Eduardo}}]
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": [{
+        "$id": ObjectId("5e66cb581766a2056c48145f"),
+        "$ref": "relacionamento_pessoas_casas"
+    }]
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Emanuel}}]
+{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "$id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "$ref": "relacionamento_pessoas_casas"
+        },
+        {
+            "$id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "$ref": "relacionamento_pessoas_casas"
+        }
+    ]
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Documento do Relacionamento da Pessoa \textit{Eduardo} Com Sua Casa}]
+{
+    "_id": ObjectId("5e66cb581766a2056c48145f"),
+    "valorMensal": 300,
+    "quantidadeMeses": 8,
+    "casa": {
+        "$id": 20,
+        "$ref": "casas"
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento do Relacionamento da Pessoa \textit{Emanuel} Com Sua Primeira Casa}]
+{
+    "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+    "valorMensal": 200,
+    "quantidadeMeses": 12,
+    "casa": {
+        "$id": 10,
+        "$ref": "casas"
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento do Relacionamento da Pessoa \textit{Emanuel} Com Sua Segunda Casa}]
+{
+    "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+    "valorMensal": 400,
+    "quantidadeMeses": 24,
+    "casa": {
+        "$id": 20,
+        "$ref": "casas"
+    }
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Documento da Casa de Número 1B}]
+{
+    "_id": 10,
+    "rua": "Rua Castelo branco",
+    "numero": "1B"
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento da Casa de Número 1089}]
+{
+    "_id": 20,
+    "rua": "Rua Pompel",
+    "numero": "1089"
+}
+\end{lstlisting}
+
+Esses documentos auxiliares para representar o relacionamento de pessoa com casa são necessários caso o \textit{DBRef} esteja sendo utilizado e as ferramentas de desenvolvimento usadas estejam ignorando os atributos de relacionamento. Dependendo das bibliotecas e frameworks utilizados, pode ser que esses documentos auxiliares não sejam necessários, e os dados desses documentos possam ser inseridos no documento principal. A abordagem a ser utilizada dependerá da linguagem e da plataforma que está sendo utilizada. Se o ambiente de execução utilizado suportar tal estratégia, seria possível relacionar as pessoas com suas casas por meio de uma modelagem parecida com isso:
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Eduardo}}]
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": [{
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "valorMensal": 300,
+        "quantidadeMeses": 8,
+        "casa": {
+            "$id": 20,
+            "$ref": "casas"
+        }
+    }]
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento da Pessoa \textit{Emanuel}}]
+{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "valorMensal": 200,
+            "quantidadeMeses": 12,
+            "casa": {
+                "$id": 10,
+                "$ref": "casas"
+            }
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "valorMensal": 400,
+            "quantidadeMeses": 24,
+            "casa": {
+                "$id": 20,
+                "$ref": "casas"
+            }
+        }
+    ]
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=json, caption={Documento da Casa de Número 1B}]
+{
+    "_id": 10,
+    "rua": "Rua Castelo branco",
+    "numero": "1B"
+}
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Documento da Casa de Número 1089}]
+{
+    "_id": 20,
+    "rua": "Rua Pompel",
+    "numero": "1089"
+}
+\end{lstlisting}
+
+Essa última abordagem apresentada possui a vantagem de não existir um documento auxiliar intermediando o relacionamento. Isso é útil por diminuir o armazenamento e por permitir que consultas mais complexas sejam mais simples de se implementar.
+
+Assim como explicado anteriormente, o \textit{DBRef} pode permitir que operações de união de documentos ocorram de forma mais simples e automática, caso o ambiente de execução utilizado disponibilize tais opções para os BSONs que seguem seu padrão. Apesar dos benefícios, operações mais complexas como, por exemplo, buscas sobre valores presentes em vários documentos, podem não estar disponíveis via \textit{DBRef}. Além disso, operações como o \textit{\$lookup} podem exigir que o \textit{DBRef} seja convertido para um outro formato antes de tais operações serem realizadas. 
+
+Por causa disso, o uso do \textit{DBRef} pode exigir codificações mais complexas em determinadas situações onde a biblioteca ou framework não daria suporte. Por essas razões que, dependendo das ferramentas disponibilizadas pelo ambiente de execução, bem como das necessidades do projeto, pode ser que o uso de uma referencia manual de outros documentos seja uma melhor escolha do que o \textit{DBRef}.
+
+\subsection{\textit{Populate} do \textit{Mongoose}}
+
+O \textit{Mongoose} é uma biblioteca feita para \textit{Node JS}, que disponibiliza algumas funcionalidades a mais para o \textit{MongoDB}, principalmente relacionadas à modelagem dos dados. Através dessa ferramenta, torna-se possível criar \textit{schemas} para os dados a serem armazenados. Esses \textit{schemas} permitem que a estrutura do BSON de cada documento seja padronizada e obeceça as regras de estrutura definidos pelo programador. Para o exemplo que está sendo apresentado, os seguintes \textit{schemas} podem ser utilizados:
+
+\newpage
+
+\begin{lstlisting}[style=ES6, caption={Definição de \textit{Schemas} no \textit{Mongoose}}]
+    const PessoaSchema = new mongoose.Schema({
+        _id: Number,
+        nome: String,
+        idade: Number,
+        casas: [{
+            _id: mongoose.Schema.Types.ObjectId,
+            id: {
+                type: Number,
+                ref: "casas"
+            },
+            valorMensal: Number,
+            quantidadeMeses: Number
+        }]
+    })
+    const Pessoa = db.model("pessoas", PessoaSchema)
+
+    const CasaSchema = new mongoose.Schema({
+        _id: Number,
+        rua: String,
+        numero: String
+    })
+    const Casa = db.model("casas", CasaSchema)
+\end{lstlisting}
+
+Um dos recursos disponibilizados pelo \textit{Mongoose} é o \textit{populate}. Este recurso substitui o \textit{DBRef} e o \textit{\$lookup} para operações de busca, seguido de união de documentos. A restrição do \textit{populate} em comparação com o \textit{\$lookup} é que no \textit{\$lookup} é possível realizar buscas sobre os dados dos documentos unidos, enquanto que no \textit{populate} a busca deve ocorrer apenas sobre os dados originais do documento. Se desconsiderarmos essa ``limitação'', o \textit{populate} é mais simples de se usar do que o \textit{\$lookup}, além de disponibilizar novas opções e recursos. Atualmente, o \textit{Mongoose} está disponível apenas para o \textit{Node JS}, que é exatamanete o escopo a qual esse trabalho se propõe em atual. Para que os documentos da coleção de Pessoa e Casa sejam unidos com o \textit{populate}, seria necessário fazer uma codificação parecida com isso:
+
+\begin{lstlisting}[style=ES6, caption={União de Documentos Com o \textit{Populate}}]
+  let UNIAO = await Pessoa.find({}).populate("casas.id").exec()
+\end{lstlisting}
+
+Com apenas uma única linha, os dois documentos foram unidos, mantendo os atributos de relacionamento. Após a execução do código anterior, a variável ``UNIAO'' terá o seguinte resultado:
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos Com o \textit{Populate}}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "id": {
+                "_id": 10,
+                "rua": "Rua Castelo Branco",
+                "numero": "1B"
+            },
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "id": {
+                "_id": 10,
+                "rua": "Rua Pompel",
+                "numero": 1089
+            },
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": {
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "id": {
+            "_id": 10,
+            "rua": "Rua Pompel",
+            "numero": 1089
+        },
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }
+}]
+\end{lstlisting}
+
+Pode-se observar que os valores de casa foram preenchidos no atributo onde encontra-se o identificador do documento. Por causa dessa característica do \textit{populate}, pode ser mais intuitivo, para este caso, remodelar a entidade de pessoa, para que o atributo ``\textit{id}'' seja renomeado para, por exemplo, ``casa''. Nesse caso, os resultados sairiam com o seguinte formato:
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos Com o \textit{Populate}}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "casa": {
+                "_id": 10,
+                "rua": "Rua Castelo Branco",
+                "numero": "1B"
+            },
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "casa": {
+                "_id": 10,
+                "rua": "Rua Pompel",
+                "numero": 1089
+            },
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": {
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "casa": {
+            "_id": 10,
+            "rua": "Rua Pompel",
+            "numero": 1089
+        },
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }
+}]
+\end{lstlisting}
+
+\subsection{União de Documentos de Forma Manual}
+
+Caso haja a necessidade de obter um maior controle na união dos documentos, ou se os recursos de união automático não forem satisfatório o suficiente para as necessidades da aplicação, é possível realizar uma união de forma manual. Um exemplo de uma codificação manual de junção de documentos encontra-se a seguir:
+
+\newpage
+
+\begin{lstlisting}[style=ES6, caption={Junção Manual dos Documentos de Pessoa com Casa}]
+    let pessoas = await db.collection("pessoas")
+        .find({}).toArray();
+    
+    for (let p of pessoas) {
+        for (let i = 0; i < p.casas.length; i++) {
+            let c = p.casas[i];
+    
+            let casa = (await db.collection("casas").find({
+                "_id": c.id
+            }).toArray())[0];
+    
+            p.casas[i] = {
+                ...casa,
+                ...c
+            };
+        }
+    }
+\end{lstlisting}
+
+Ao final desse código, a variável ``pessoas'' terá a junção dos documentos da coleção de Pessoa e Casa. Tal variável teria o seguinte resultado:
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos de Forma Manual}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "id": 10,
+            "rua": "Rua Castelo Branco",
+            "numero": "1B",
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "id": 20,
+            "rua": "Rua Pompel",
+            "numero": 1089,
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": {
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "id": 20,
+        "rua": "Rua Pompel",
+        "numero": "1089",
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }
+}]
+\end{lstlisting}
+
+%Observa-se que em um ambiente real, vários documentos %precisariam ser unidos, deixando o código cada vez mais complexo.
+
+\subsection{Usando o \textit{Alpha Restful} Para Unir Documentos}
+
+O \textit{Alpha Restful} possui sua própria implementação para unir os documentos. Internamente, os documentos sempre são unidos de forma manual. A vantagem de se utilizar o \textit{Alpha Restful} é que ele disponibiliza duas novas funcionalidades que não estão diretamente disponíveis pelos métodos descritos anteriormente:
+
+\begin{itemize}
+	\item Relacionamento inverso
+	\item Relacionamento inverso de um relacionamento inverso
+\end{itemize}
+
+Para que as funcionalidades do \textit{framework} sejam disponibilizadas, o \textit{Alpha Restful} utiliza os \textit{schemas} do \textit{Mongoose}, em conjunto com especificações de sincronização (\textit{sync}) entre as entidades. Essas especificações de sincronização permitem que entidades sejam relacionadas entres si baseado em identificadores e em outros tipos de relacionamentos (que não serão explicados por fugir do escopo desse trabalho). No exemplo a qual está sendo trabalhado nessa seção, os \textit{schemas} e especificações de sincronização das entidades podem ser definidos no \textit{Alpha Restful} com uma codificação parecida com isso:
+
+\newpage
+
+\begin{lstlisting}[style=ES6, caption={Definição de \textit{Schemas} no \textit{Alpha Restful}}]
+    const restful = new Restful("<nome-da-aplicacao>", {
+        locale: "pt"
+    })
+
+    const Pessoa = new Entity({
+        name: "Pessoa",
+        resource: "pessoas",
+        descriptor: {
+            nome: String,
+            idade: Number,
+            casas: [{
+                id: Number,
+                valorMensal: Number,
+                quantidadeMeses: Number
+            }]
+        },
+        sync: {
+            casas: {
+                name: "Casa",
+                fill: true
+            }
+        }
+    })
+    
+    const Casa = new Entity({
+        name: "Casa",
+        resource: "casas",
+        descriptor: {
+            rua: String,
+            numero: String
+        }
+    })
+    
+    restful.add(Pessoa)
+    restful.add(Casa)
+\end{lstlisting}
+
+Para a união de documentos, o \textit{Alpha Restful} disponibiliza uma opção denominada de \textit{fill}. Tal opção é poderosa, pois ela pode ser utilizada sobre qualquer objeto já pesquisado ou montado, sendo possível definir, na chamada da função, relacionamentos temporários com outras entidades. Para que os documentos da coleção de Pessoa e Casa sejam unidos com o \textit{Alpha Restful}, uma codificação parecida com isso teria que ser feita:
+
+\begin{lstlisting}[style=ES6, caption={União de Documentos Com o \textit{Alpha Restful}}]
+	let pessoas = await Pessoa.model.find({}).exec()
+	pessoas = await Pessoa.fill(pessoas, restful)
+\end{lstlisting}
+
+A operação de união de documentos ocorre após os objetos terem sido obtidos, por exemplo, por meio de uma busca. Nesse caso buscou-se por todas as pessoas. Após essa busca, basta chamar o método \textit{Pessoa.fill} para que os documentos sejam unidos. Como na modelagem já tinha sido definido que o atributo ``casas'' de pessoa fazia um relacionamento com a entidade ``Casa'' (através do objeto \textit{sync}), e que por padrão os documentos devem ser unidos (através da opção \textit{fill} igual a \textit{true} em \textit{sync}), apenas a chamada do método é o suficiente para realizar a união. Na versão atual do \textit{Alpha Restful} (0.7.37), o identificador da entidade relacionada precisa ser definido no atributo \textit{id}. Depois de executar o código anterior, a variável ``pessoas'' obterá o seguintes resultado:
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos Com o \textit{Alpha Restful}}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "id": 10,
+            "rua": "Rua Castelo Branco",
+            "numero": "1B",
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "id": 20,
+            "rua": "Rua Pompel",
+            "numero": 1089,
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": {
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "id": 20,
+        "rua": "Rua Pompel",
+        "numero": "1089",
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }
+}]
+\end{lstlisting}
+
+\subsubsection{Relacionamento Inverso}
+
+Uma das funcionalidades disponibilizadas pelo \textit{Alpha Restful} que, atualmente, não estão diretamente disponíveis nos outros métodos de união de documentos mostrados (com exceção do método manual), é o relacionamento inverso. Para ilustrar tal funcionalidade, pode-se analisar a situação onde seria necessário unir as duas coleções, mas unindo nos documentos de casa. Essa operação pode ser feita diretamente no método de \textit{fill}, sem a necessidade de alterar a modelagem da entidade:
+
+\begin{lstlisting}[style=ES6, caption={União de Documentos em Relacionamento Inverso}]
+    let casas = await Casa.model.find({}).exec()
+    casas = await Casa.fill(casas, restful, { sync: {
+        pessoas: {
+            name: "Pessoa",
+            syncronized: ["casas"],
+            fill: true,
+            jsonIgnoreProperties: "casas"
+        }
+    }})
+\end{lstlisting}
+
+A opção ``\textit{jsonIgnoreProperties}'', nesse caso, é responsável por ignorar o atributo ``casas'' de Pessoa. Isso é necessário para que não ocorra uma recursão infinita. Sem essa opção, as pessoas seriam preenchidas no atributo ``pessoas'', as casas seriam preenchidas no atribututo ``casas'', as pessoas seriam novamente preenchidas no atributo ``pessoas'' e assim por diante. Com a opção ``\textit{jsonIgnoreProperties}'', as casas não serão incluídas nas pessoas. Após a execução do código anterior, os documentos de Casa e Pessoa são unidos, mas tendo como base a entidade ``Casa''. Os documentos unidos estarão presentes na variável ``casas'' e teria a seguinte estrutura:
+
+\newpage
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos em ``Casa''}]
+[
+    {
+        "_id": 10,
+        "rua": "Rua Castelo Branco",
+        "numero": "1B",
+        "pessoas": [
+            {
+                "id": 1,
+                "nome": "Emanuel",
+                "idade": 21
+            }
+        ]
+    },
+    {
+        "_id": 20,
+        "rua": "Rua Pompel",
+        "numero": "1089",
+        "pessoas": [
+            {
+                "id": 1,
+                "nome": "Emanuel",
+                "idade": 21
+            },
+            {
+                "id": 2,
+                "nome": "Eduardo",
+                "idade": 40
+            }
+        ]
+    }
+]
+\end{lstlisting}
+
+Como na modelagem da entidade de ``Casa'' o relacionamento com pessoa não foi definido, é possível fazer essa definição na hora de realizar a união. Pode-se observar que não existe a necessidade de armazenar os identificadores das pessoas nas suas casas, o \textit{framework} consegue automaticamente identificálos, bastando apenas informar na opção ``\textit{syncronized}'' o caminho para se obter as casas por meio de uma pessoa. Caso fosse desejado obter esse comportamento por padrão, assim como ocorre em ``Pessoa'', bastaria atualizar o objeto ``\textit{sync}'' da entidade ``Casa''. Se isso for feito, a união poderia ocorrer sem a definição do relacionamento na hora da união. Nesse caso, a modelagem de Casa ficaria da seguinte forma:
+
+\begin{lstlisting}[style=ES6, caption={Definição do \textit{Schema} de Casa}]
+    const Casa = new Entity({
+        name: "Casa",
+        resource: "casas",
+        descriptor: {
+            rua: String,
+            numero: String
+        },
+        sync: {
+            pessoas: {
+                name: "Pessoa",
+                syncronized: ["casas"],
+                fill: true,
+                jsonIgnoreProperties: "casas"
+            }
+        }
+    })
+\end{lstlisting}
+
+\subsubsection{Relacionamento Inverso do Relacionamento Inverso}
+
+Outra funcionalidade disponibilizada pelo \textit{Alpha Restful} que, atualmente, não está disponível nos outros métodos de união de documentos mostrados (com exceção do método manual), é o relacionamento inverso do relacionamento inverso. Uma forma de ilustrar essa função é tentar obter, no documento das pessoas, a lista de moradores de uma ou mais casas que a própria pessoa também mora. Para isso, bastaria fazer um relacionamento inverso do atributo ``pessoas'' em casas:
+
+\begin{lstlisting}[style=ES6, caption={Definição de \textit{Schemas} no \textit{Alpha Restful}}]
+    const restful = new Restful("<nome-da-aplicacao>", {
+        locale: "pt"
+    })
+
+    const Pessoa = new Entity({
+        name: "Pessoa",
+        resource: "pessoas",
+        descriptor: {
+            nome: String,
+            idade: Number,
+            casas: [{
+                id: Number,
+                valorMensal: Number,
+                quantidadeMeses: Number
+            }]
+        },
+        sync: {
+            casas: {
+                name: "Casa",
+                fill: true,
+                jsonIgnoreProperties: "pessoas"
+            },
+            residentes: {
+                name: "Pessoa",
+                syncronized: ["casas.pessoas"],
+                fill: true,
+                jsonIgnoreProperties: ["residentes", "casas"]
+            }
+        }
+    })
+    
+    const Casa = new Entity({
+        name: "Casa",
+        resource: "casas",
+        descriptor: {
+            rua: String,
+            numero: String
+        },
+        sync: {
+            pessoas: {
+                name: "Pessoa",
+                syncronized: ["casas"],
+                fill: true,
+                jsonIgnoreProperties: "casas"
+            }
+        }
+    })
+    
+    restful.add(Pessoa)
+    restful.add(Casa)
+\end{lstlisting}
+
+Os \textit{schemas} definidos no código anterior criam em Pessoa um novo atributo (``residentes'') que contém todas as pessoas que então contidas no atributo definido em \textit{``syncronized''} que, neste caso, é o atributo ``casas.pessoas''. Pode-se observar a presença da opção ``\textit{jsonIgnoreProperties}'' no ``\textit{sync}'' das entidades. Tal opção armazena o nome do atributo (poderia ser uma lista de nomes de atributos) que será ignorado nos documentos que serão unidos. Isso é necessário para impedir uma união recursiva infinita de atributos. Da forma como a modelagem está definida, ao se unir os documentos de pessoa com casa, havera um atributo no documento de pessoa chamado de ``residentes'', que conterá todas as pessoas que moram em uma ou mais casas na qual a própria pessoa também mora. Essa união de documentos pode ser realizado por meio do seguinte código:
+
+\begin{lstlisting}[style=ES6, caption={União de Documentos Com o \textit{Alpha Restful}}]
+	let pessoas = await Pessoa.model.find({}).exec()
+	pessoas = await Pessoa.fill(pessoas, restful)
+\end{lstlisting}
+
+Por causa do relacionamento inverso, que também pode se relacionar com um outro relacionamento inverso, a união de documentos por meio do \textit{Alpha Restful} é mais poderosa que as outras opções descritas anteriormente. Ao final da execução do código anterior, a variável ``pessoas'' terá o seguinte resultado:
+
+\begin{lstlisting}[language=json, caption={Junção de Documentos Com Residentes}]
+[{
+    "_id": 1,
+    "nome": "Emanuel",
+    "idade": 21,
+    "casas": [
+        {
+            "_id": ObjectId("5e66cb3a7216361ff05b3b8f"),
+            "id": 10,
+            "rua": "Rua Castelo Branco",
+            "numero": "1B",
+            "valorMensal": 200,
+            "quantidadeMeses": 12
+        },
+        {
+            "_id": ObjectId("5e66cb43534f8a1944cdb028"),
+            "id": 20,
+            "rua": "Rua Pompel",
+            "numero": 1089,
+            "valorMensal": 400,
+            "quantidadeMeses": 24
+        }
+    ],
+    "residentes": [
+        {
+            "id": 1,
+            "nome": "Emanuel",
+            "idade": 21,
+        },
+        {
+            "id": 2,
+            "nome": "Eduardo",
+            "idade": 40,
+        }
+    ]
+},
+{
+    "_id": 2,
+    "nome": "Eduardo",
+    "idade": 40,
+    "casas": [{
+        "_id": ObjectId("5e66cb581766a2056c48145f"),
+        "id": 20,
+        "rua": "Rua Pompel",
+        "numero": "1089",
+        "valorMensal": 300,
+        "quantidadeMeses": 8
+    }],
+    "residentes": [
+        {
+            "id": 1,
+            "nome": "Emanuel",
+            "idade": 21,
+        },
+        {
+            "id": 2,
+            "nome": "Eduardo",
+            "idade": 40,
+        }
+    ]
+}]
+\end{lstlisting}
+
+\section{Buscas Filtradas em Documentos Relacionados}
+
+O \textit{MongoDB} é nativamente capaz de realizar buscas complexas e simples dentro de um mesmo documento, mas a partir do momento que as buscas precisam ser realizadas em documentos separados que estão relacionados entre si, as pesquisas passam a ficar mais difíceis de serem realizadas. Para, por exemplo, ser feito uma busca pelas pessoas cuja a idade seja igual a 40, poderia ser realizado uma codificação parecido com isto:
+
+\begin{lstlisting}[style=ES6, caption={Busca de Pessoas com idade igual a 40}]
+    let pessoas = await db.collection("pessoas").find({
+        "idade": 40
+    }).toArray();
+\end{lstlisting}
+
+Ao final desse código, a variável ``pessoas'' obterá todas as pessoas na qual a idade é igual a 40. O código é simples, pois a busca ocorre dentro do próprio documento. Mas e se for desejado obter todas as casas, na qual existe pelo menos uma pessoa, que essa pessoa possui pelo menos uma casa, que nessa casa possui pelo menos uma pessoa que possui a idade igual a 40 anos?
+
+\subsection{Usando o \textit{\$lookup}}
+
+Para realizar a pesquisa proposta, uma abordagem possível é unir os documentos utilizando o \textit{\$lookup}, até o nível que todos os dados estariam no mesmo documento. Após essa união, seria possível fazer a pesquisa, utilizando o parâmetro ``\textit{\$match}''. A pesquisa exemplo seguinte funciona utilizando essa abordagem.
+
+\begin{lstlisting}[style=ES6, caption={Busca em Dados Normalizados Com o \textit{\$lookup}}]
+    let RESULTADO = await db.collection("casas").aggregate([
+        { $lookup: {
+            from: "pessoas",
+            localField: "_id",
+            foreignField: "casas.id",
+            as: "pessoas"
+        }},
+        { $unwind: "$pessoas" },
+        { $lookup: {
+            from: "casas",
+            localField: "pessoas.casas.id",
+            foreignField: "_id",
+            as: "pessoas.casas"
+        }},
+        { $unwind: "$pessoas.casas" },
+        { $lookup: {
+            from: "pessoas",
+            localField: "pessoas.casas._id",
+            foreignField: "casas.id",
+            as: "pessoas.casas.pessoas"
+        }},
+        { $group: {
+            _id: {
+                _id: "$_id",
+                rua: "$rua",
+                numero: "$numero",
+                pessoas: {
+                    _id: "$pessoas._id",
+                    nome: "$pessoas.nome",
+                    idade: "$pessoas.idade",
+                }
+            },
+            casas: {
+                $push: "$pessoas.casas"
+            }
+        }},
+        { $project: {
+            _id: "$_id._id",
+            rua: "$_id.rua",
+            numero: "$_id.numero",
+            pessoas: {
+                _id: "$_id.pessoas._id",
+                nome: "$_id.pessoas.nome",
+                idade: "$_id.pessoas.idade",
+                casas: "$casas"
+            }
+        }},
+        { $group: {
+            _id: {
+                _id: "$_id",
+                rua: "$rua",
+                numero: "$numero"
+            },
+            pessoas: {
+                $push: "$pessoas"
+            }
+        }},
+        { $project: {
+            _id: "$_id._id",
+            rua: "$_id.rua",
+            numero: "$_id.numero",
+            pessoas: "$pessoas"
+        }},
+        { $match: {
+            "pessoas.casas.pessoas.idade": 40
+        }}
+    ]).toArray()
+\end{lstlisting}
+
+Para a realização de uma pesquisa dessa complexidade, é necessário unir os documentos várias vezes, pois é necessário acessar os dados que estão dentro de uma lista (pessoas), que estão dentro de uma lista (pessoas.casas), que estão dentro de uma lista (pessoas.casas.pessoas). Por essa razão, utilizar o \textit{\$lookup} para consultas pode ser complexo.
+
+\subsection{Pesquisa Manual}
+    
+Também é possível realizar a pesquisa proposta de forma manual, subdividindo a pesquisa em pesquisas menores e unindo-as em uma pesquisa que irá obter o resultado esperado. A utilização de tal abordagem para a pesquisa proposta resultaria em uma codificação parecida com isso:
+
+\newpage
+
+%Através de uma pesquisa pela internet, é comumente encontrado, na maioria dos fóruns pesquisados, que a pesquisa em vários documentos relacionados deve ser quebrado em várias pesquisas em cada documento. 
+
+\begin{lstlisting}[style=ES6, caption={Busca em Dados Normalizados de Forma Manual}]
+    let pessoasIdade40 = await db.collection("pessoas").find({
+        "idade": 40
+    }).toArray();
+    
+    let idsCasasPessoasIdade40 = 
+    pessoasIdade40.map(p => 
+        p.casas.reduce((a,c) => [...a,c.id], [])
+    ).reduce((a,lid) => [...a, ...lid], []);
+    
+    let casasPessoasIdade40 =
+    await db.collection("casas").find({
+        "_id": { $in: idsCasasPessoasIdade40 }
+    }).toArray();
+    
+    let idsCasasPessoasIdade40 = 
+    casasPessoasIdade40.map(c => c._id);
+    
+    let pessoasCasasPessoasIdade40 = await
+    db.collection("pessoas").find({
+        "casas.id": { $in: idsCasasPessoasIdade40 }
+    }).toArray();
+    
+    let idsCasasPessoasCasasPessoasIdade40 = 
+    idsCasasPessoasCasasPessoasIdade40.map(p => 
+        p.casas.reduce((a,c) => [...a,c.id], [])
+    ).reduce((a,lid) => [...a, ...lid], []);
+    
+    let RESULTADO_DA_PESQUISA = await
+    db.collection("casas").find({
+        "_id": { $in: idsCasasPessoasCasasPessoasIdade40 }
+    }).toArray();
+\end{lstlisting}
+
+Para buscar as casas, na qual existe pelo menos uma pessoa, que esta pessoa possui pelo menos uma casa, na qual esta casa possui pelo menos uma pessoa com idade igual a 40 anos, foi necessário 30 linhas com códigos.
+    
+O primeiro passo para realizar esta busca é de obter todas as pessoas que possui idade igual a 40 anos (linha 1 a 3). Depois, os identificadores das casas pertencentes a estas pessoas são extraídos (linhas 5 a 8). Após a extração destes identificadores, são buscados todas as casas que possui um identificador dentre esses (linhas 10 a 12). Após a busca de todas essas casas, são extraídos todos os identificares (linhas 14 a 15). Após a extração desses identificadores, são buscadas todas as pessoas que possuem alguma destas casas (linhas 17 a 20). Após a busca destas pessoas, são extraídos todos os identificadores das casas destas pessoas (linhas 22 a 25). Finalmente, as casas que possui seu identificador dentre os identificadores são buscadas, obtendo o resultado esperado pela consulta.
+    
+Observa-se que, tanto essa consulta, quando a consulta usando o \textit{\$lookup} e \textit{\$match}, possui apenas uma ramificação de filtros encadeados. Os códigos ficariam mais complexo com a adição de outras ramificações de filtros, utilizando-se de outras relações com outros documentos relacionados.
+
+\subsection{Usando o \textit{Alpha Restful}}
+
+Como visto anteriormente, realizar buscas que englobam vários documentos pode ser algo complexo. Para contornar este problema, o \textit{Alpha Restful} mapeia todos os relacionamentos normalizados dentre todos os documentos do sistema para fornecer uma sintaxe simples para se realizar pesquisas. Para ilustrar este comportamento, será considerado o exemplo de busca apresentado anteriormente. Para realizar essa pesquisa, bastaria executar o seguinte código:
+    
+\begin{lstlisting}[style=ES6, caption={Busca em Dados Normalizados com o \textit{Alpha Restful}}]
+    let casas = await restful.query({
+        "pessoas.casas.pessoas.idade": 40
+    }, Casa);
+\end{lstlisting}
+    
+Anteriormente, para a realização dessa pesquisa, foi necessário entre 30 (de forma manual) e 67 (usando \textit{\$lookup} com \textit{\$match}) linhas, mas com o \textit{Alpha Restful}, apenas 3 linhas foi o suficiente. Isso ocorre porque o \textit{Alpha Restful} consegue enxergar todos os atributos presentes em outros documentos normalizados, como se eles estivessem dentro do documento de maneira desnormalizada. A sintaxe utilizada para realizar buscas é uma extensão da sintaxe utilizada pelo \textit{Mongoose}, com a diferença de considerar nas pesquisas os atributos contidos em outros documentos relacionados.
+
+\section{Remoção em Cascata de Documentos Relacionados}
+    
+No exemplo a qual está sendo abordado, pode-se supor que, por exemplo, o sistema possua uma regra de negócio que afirme que quando uma pessoa for removida, todas as casas pertencentes a essa pessoa devam ser removidas também. Para a implementação de tal regra, sem o uso de um \textit{framework}, toda vez que uma pessoa for removida, será necessário manualmente buscar por todas as casas pertencentes a esta pessoa e removê-las. O problema dessa abordagem manual é que uma coleção pode possuir vários relacionamentos com outros documentos, deixando o código cada vez mais complexo.
+
+Pensando nisso, o \textit{Alpha Restful} disponibiliza uma opção na sincronização das entidades (\textit{sync}), que faz exatamente essa funcionalidade. Para garantir esse comportamento, é necessário apenas informar a opção \textit{deleteCascade} no atributo da entidade a qual deseja-se que seja removida automaticamente:
+
+\begin{lstlisting}[style=ES6, caption={Modelagem de ``Casa'' com \textit{deleteCascade}}]
+    const Casa = new Entity({
+        name: "Casa",
+        // ...
+        sync: {
+            pessoas: {
+                name: "Pessoa",
+                syncronized: ["casas"]
+                fill: true,
+                jsonIgnoreProperties: "casas",
+                deleteCascade: true
+            },
+            // ...
+        }
+    })
+\end{lstlisting}
+
+\section{Relação de Dependência Entre os Documentos}
+
+No exemplo a qual está sendo abordado, se uma casa não poder ser removida caso possua um relacionamento com alguma pessoa, seria necessário a verificação da existência de tal relacionamento antes de uma casa ser removida. Caso todo esse procedimento seja feito manualmente e outras entidades comecem a se relacionar com a entidade Casa, o código desta verificação ficaria cada vez mais complexo, se essa regra se repetisse para outros documentos.
+
+Para que essa regra seja aplicada de forma mais simples, o \textit{Alpha Restful} disponibiliza no ``\textit{sync}'' uma opção que define uma relação de dependência entre os documentos. Uma relação de dependência entre documentos normalizados relacionados garante que um documento não possa ser removido se estiver presente em algum relacionamento definido como dependente. Se, por exemplo, uma casa não poder ser removida, caso possua alguma pessoa, bastaria apenas informar a opção \textit{required} no atributo da entidade a qual deseja-se criar um relacionamento de dependência (Pessoa):
+
+\begin{lstlisting}[style=ES6, caption={Modelagem de Pessoa com \textit{required}}]
+    const Pessoa = new Entity({
+        name: "Pessoa",
+        // ...
+        sync: {
+            casas: {
+                name: "Casa",
+                fill: true,
+                jsonIgnoreProperties: "pessoas",
+                required: true
+            },
+            // ...
+        }
+    })
+\end{lstlisting}
+
+\section{Identificadores Apontando para Lixo}
+
+Um dos possíveis problemas que podem ser comuns no desenvolvimento de uma aplicação com \textit{MongoDB}, é a existência de identificadores que apontam para documentos que não existem. Isso acontece porque as entidades que possuem um identificador de outra entidade que foi removida do banco, podem continuar com esse identificador. Um exemplo que pode ser apresentado é de que se uma casa for removida, isso pode fazer com que o identificador dessa casa nos documentos da coleção de ``Pessoa'' apontará para lugar algum, pois a casa a qual tais identificadores em Pessoa apontam, já não existe mais.
+    
+Para que esse problema seja contornado, sem o uso de um \textit{framework}, é necessário que antes que qualquer entidade seja removida, seja realizado uma análise em todas as entidades que se relacionam com a instância a qual deseja-se remover. Após esta análise, os dados que apontariam para esta entidade que está sendo removida seriam removidos também. Com o aumento da complexidade da aplicação, esse código ficaria cada vez mais e mais complexo, pois a cada novo relacionamento entre documentos, mais alterações precisariam ser feitas no código para garantir esse comportamento. O \textit{Alpha Restful} já resolve esse problema automaticamente (bastando apenas realizar o procedimento descrito na seção 3.6). Nenhuma opção precisa ser habilitada na modelagem para que esse problema seja mitigado.
+
+\section{\textit{deleteSync}}
+
+Para que as funcionalidades relacionadas à remoção de entidades no \textit{Alpha Restful} possam acontecer (seções 3.3, 3.4 e 3.5), é necessário que o método \textit{restful.deleteSync} seja chamado antes que qualquer entidade ser removida. Se, por exemplo, uma casa tiver que ser removida, o seguinte código deve ser executado antes da remoção:
+
+\begin{lstlisting}[style=ES6, caption={Antes de Remover Uma Casa}]
+  await restful.deleteSync(casa._id, "Casa", Casa.syncronized)
+\end{lstlisting}

@@ -1,0 +1,146 @@
+\chapter{INTRODUÇÃO}
+\label{Introducao}
+
+A grande demanda pela informatização de processos, que antes eram desenvolvidos completamente por humanos, tem sido bastante crescente. Isto vem estimulando a criação de novas ferramentas para facilitar o desenvolvimento de aplicações que automatizam tais processos. Para que tais aplicações possam se comunicar, torna-se necessário inseri-lo em uma rede local ou global de computadores. Dessa forma, o desenvolvimento \textit{Web} é usado para que a comunicação na rede do sistema desenvolvido possa acontecer.
+
+%Uma aplicação pode ser desenvolvida em diversas plataformas. \hl{Uma das plataformas mais utilizadas atualmente é a web}, que permite a comunicação entre dispositivos localizados no mundo inteiro que se conectam a ela.
+
+%%%%%
+% A web pode realmente ser definida como uma plataforma?
+%%%%%
+
+%É comum uma aplicação web obedecer a um determinado padrão arquitetônico que irá definir regras para a organização dos seus pontos de acesso. Um dos padrões arquitetônicos mais utilizados é o REST.
+
+\hl{Dentre as características mais comuns no desenvolvimento das mais diversas aplicações web}, estão a necessidade de armazenar, buscar, atualizar e remover dados, popularmente conhecido como CRUD (\textit{Create}, \textit{Read}, \textit{Update} e \textit{Delete}). Dependendo do propósito da aplicação desenvolvida, todas ou algumas dessas operações são utilizadas. \hl{Uma das abordagens mais antigas de armazenamento de dados é a utilização de arquivos de texto}, mas com o passar do tempo, \hl{gerenciar tais dados dessa maneira se tornou ineficiente}. Motivados por esta problemática, os Banco de Dados foram criados.
+
+%%%%%
+% Será que realmente deve ser afirmado que "Dentre as características mais comuns no desenvolvimento das mais diversas aplicações web"?
+
+% Eu preciso provar que "Uma das abordagens mais antigas de armazenamento de dados é a utilização de arquivos de texto"?
+
+% Eu preciso provar que "gerenciar tais dados dessa maneira se tornou ineficiente"?
+%%%%%
+
+% \hl{Um Banco de Dados é um sistema que possibilita o registro de dados seguindo uma determinada estrutura de armazenamento}
+
+Assim como descrito por \cite{date2004introduccao}, um banco de dados é ``um sistema de armazenamento de dados baseado em computador; isto é, um sistema cujo objetivo global é registrar e manter informação''. \hl{Um SGBD (Sistema de Gerenciamento de Banco de Dados) é um software capaz de manipular um determinado banco de dados, disponibilizando para o usuário ferramentas de CRUD}. \hl{Um SGBD realiza todas as operações e tratamentos necessários, fornecendo um \textit{endpoint} de inserção de comandos para o gerenciamento mais simples, consistente e performático da manipulação de dados.}
+
+%%%%%
+% Buscar definição de banco de dados da literatura
+
+% Buscar definição de SGBD da literatura
+
+% Buscar na literatura as facilidades disponibilizadas por um SGBD
+%%%%%
+
+\hl{Vários tipos diferentes de Banco de Dados foram criados ao longo do tempo}, mas os Bancos de Dados \hl{atualmente mais utilizados pelas empresas seguem o modelo relacional}. \hl{Tal modelo define uma estrutura de dados normalizada baseado em tabelas que se relacionam entre si}. \hl{Tal modelo demonstrou-se consistente e performático, popularizando-se rapidamente}. \hl{A linguagem padrão utilizada por tais bancos é o SQL (Structured Query Languagem)}.
+
+%%%%%
+% Citar exemplos de tipos de bancos de dados
+
+% Provar que o modelo mais utilizado atualmente é o modelo relacional
+
+% Buscar definição de modelo relacional na literatura
+
+% Fundamentar cientificamente que o modelo relacional "demonstrou-se consistente e performático, popularizando-se rapidamente"
+
+% Quem definiu que o SQL é a linguagem padrão do modelo relacional? É necessário explicitar isso?
+%%%%%
+
+O modelo Relacional foi desenvolvido visando a imposição de alguns limites. Tais limites são definidos pelas regras de normalização \hl{e foram motivados para}:
+
+%%%%%
+% Justificar usando a literatura tais motivações
+%%%%%
+
+\begin{itemize}
+	\item Otimizar a quantidade de dados armazenados;
+	\item Otimizar a atualização de registros;
+	\item Criar regras na própria estrutura de armazenamento, a fim de dificultar a inconsistência de dados.
+\end{itemize}
+
+\hl{Com o passar do tempo, os dispositivos começaram a aumentar sua capacidade de armazenamento drasticamente}. Tal avanço tecnológico estimulou a criação de aplicações que necessitam armazenar uma quantidade cada vez maior de dados. Mediante tal cenário, \hl{pôde-se observar} que os limites impostos pela normalização vêm demonstrando ser uma barreira tecnológica que dificulta a criação de aplicações altamente escaláveis, disponíveis e consistentes.
+
+%%%%%
+% Citar exemplos e estatísticas de como os dispositivos aumentaram sua capacidade de armazenamento
+
+% Pôde-se observar como? Citar trabalhos relacionados que demonstre isso
+%%%%%
+
+Baseado nessa problemática, começaram a surgir novos modelos de armazenamento de dados, objetivando melhorar a performance de aplicações cujo o atendimento de suas exigências fosse muito caro, complexo ou inviável para o modelo de banco de dados Relacional.
+
+\hl{Os bancos que estruturam seus dados usando abordagens não relacionais ou parcialmente relacionais são denominados de NoSQL (Not Only SQL)}. Vários tipos diferentes de banco de dados NoSQL foram surgindo, como por exemplo, os bancos baseados em células de \hl{tuplas, grafos, chave-valor e documento}.
+
+%%%%%
+% Buscar definição de NoSQL na literatura
+
+% Referenciar trabalhos para esses tipos de NoSQL não abordados para demonstrar que eles existem
+%%%%%
+
+Atualmente, um dos banco de dados NoSQL \hl{mais utilizados é o \textit{MongoDB}}. Tal banco estrutura seus dados baseado em documentos. Esta abordagem quebra várias barreiras limitadas pelo modelo Relacional, permitindo que os dados sejam armazenados de maneira desnormalizada.
+
+%%%%%
+% Será que o MongoDB é um dos mais utilizados? Procurar referências na literatura para isso
+%%%%%
+
+A desnormalização permite uma maior flexibilização da estrutura de armazenamento, \hl{possibilitando a utilização de diversas técnicas específicas} para vários tipos de aplicações. Apesar dos benefícios da desnormalização, existem possíveis problemas que podem decorrer mediante seu uso.
+
+%%%%%
+% Que técnicas são permitidas pela flexibilização da estrutura de armazenamento? Onde na literatura isso é dito?
+%%%%%
+
+\hl{Os limites impostos pela normalização tentam garantir que um determinado valor somente precisará ser alterado em um único lugar}. Por causa desta característica, \hl{independente da complexidade do banco, a atualização de um valor, no geral, é bastante rápida}. Em contra partida, um banco desnormalizado não garante que um determinado valor estará em um único lugar, podendo exigir buscas possivelmente lentas para a localização de todos os locais onde o dado deve ser atualizado.
+
+%%%%%
+% Procurar na literatura que a normalização tende a "garantir que um determinado valor somente precisará ser alterado em um único lugar"
+
+% Será mesmo que a atualização sempre tende a ser rápida no modelo relacional?
+%%%%%
+
+Por causa de tal problemática, aplicações que usam, por exemplo, o \textit{MongoDB}, podem sentir a necessidade de mesclar estratégias de normalização e desnormalização. Com o \textit{MongoDB}, os dados podem estar normalizados, parcialmente normalizados ou desnormalizados.
+
+O \textit{MongoDB} foi projetado para que os dados possam estar desnormalizados e ele oferece \hl{um suporte muito bom para isto}, mas ele, atualmente, não oferece um suporte tão bom quanto em bancos relacionais para dados normalizados. Por causa disto, \hl{existem operações em dados normalizados que seriam mais simples de serem realizados usando a linguagem SQL, mas que se tornam mais difíceis de serem realizados no \textit{MongoDB}}. Dentro de um ambiente de desenvolvimento web com \textit{MongoDB}, tais problemáticas podem ser frequentemente encontradas.
+
+%%%%%
+% Justificar a afirmação do suporte ser muito bom para dados desnormalizados
+
+% Justificar e demonstrar como e que operações são mais simples no SQL do que no MongoDB
+%%%%%
+
+O desenvolvimento de uma aplicação web com \textit{MongoDB} pode exigir um trabalho extra, em comparação com bancos relacionais, pois, as vezes, será necessário realizar uniões e buscas em dados normalizados ou parcialmente normalizados de forma não \hl{muito} intuitiva. Além disto, por causa da alta flexibilidade na estruturação dos dados, as diferentes formas como os dados podem ser armazenados exigem tratamentos \hl{muitos} distintos na hora de implementar funcionalidades comuns para o desenvolvimento web.
+
+Dessa forma, se a estrutura dos dados mudar durante o desenvolvimento, as operações de busca e união precisarão ser alteradas. Ou seja, haverão mudanças em todas as funcionalidades que estiverem referenciando os dados reestruturados.
+
+Além dos problemas decorrentes do uso do \textit{MongoDB}, uma aplicação web exige a implementação de um conjunto de funcionalidades que, apesar de serem comuns para este tipo de aplicação, podem exigir \hl{muito} trabalho para serem desenvolvidas.
+
+Visando a resolução de tais problemas, este trabalho apresenta o desenvolvimento de um framework denominado \textit{Alpha Restful}, criado para desenvolver aplicações web com \textit{MongoDB} na linguagem \textit{ECMAScript} 6 (\textit{JavaScript}) e \textit{NodeJS} (no mínimo na versão 8).
+
+\hl{Um framework é um conjunto de códigos fonte que oferece camadas de abstração para facilitar o desenvolvimento de um conjunto de funcionalidades disponibilizadas por ele}.
+
+%%%%%
+% Buscar na literatura a definição de framework
+%%%%%
+
+O \textit{Alpha Restful} abstrai a implementação de diversas funcionalidades que precisariam ser desenvolvidas manualmente. O desenvolvimento feito usando tal framework torna-se mais simples, pois ele obtém informações sobre a forma como os dados estão armazenados. Essas informações são utilizadas para que diversas funcionalidades sejam abstraídas em implementações mais simples e direcionadas ao que realmente se deseja fazer. 
+
+%O \textit{Alpha Restful} pode ser dividido em 3 camadas de abstração, que serão explicadas posteriormente.
+
+%A primeira camada é a de modelagem. Nela o desenvolvedor irá descrever a forma como os dados serão armazenados. Nesta camada será possível criar um padrão a ser seguido na hora de salvar os dados. Tal padrão irá definir quais dados estarão normalizados, desnormalizados ou parcialmente normalizados. Nesta camada, será possível informar comportamentos específicos para cada valor armazenado.
+
+%Nesta etapa o framework irá gerar metadados (conjunto de dados que descrevem informações sobre a forma como os dados estão estruturados). Tais metadados serão utilizados pelas camadas seguintes a fim de automatizar a implementação de várias funcionalidades. Com os dados da modelagem (descrição feita pelo usuário) e com os metadados (dados gerados pelo \textit{Alpha Restful}), diversas funcionalidades serão implementadas pelo próprio framework, exigindo apenas que o usuário informe informações descritivas na hora de desenvolver tais funções. Por causa de tal abstração, pesquisas podem ser realizadas da mesma maneira, independente dos dados estarem normalizados, desnormalizados ou parcialmente normalizados.
+
+%A segunda camada é a de CRUD automático. Nela o framework poderá criar (bastando apenas a habilitação desta opção) automaticamente todo o CRUD da aplicação. Operações de registro, remoção, atualização e busca serão criados automaticamente, sem que nenhuma codificação seja necessária.
+
+%Nesta etapa, o framework irá implementar uma funcionalidade de busca padrão. Nela, serão utilizados os dados e metadados da modelagem para prever uma enorme quantidade de possibilidades de pesquisas possíveis. A customização desta camada é limitada em um conjunto enumerável de opções. Para aplicações simples, o \textit{Alpha Restful} exigirá apenas a definição da modelagem e o sistema estará pronto.
+
+%Ainda nesta camada, alguns comportamentos padrão serão automaticamente executados, tendo como base as informações definidas na primeira camada. Um destes comportamentos é a relação de dependência entre os documentos. Isto permite que entidades sejam removidas em cascata, ou que sejam desreferenciadas (uma determinada chave estrangeira seja removida de uma entidade relacionada) ou ainda que sejam impedidas de serem removidas tendo como base a remoção de uma outra entidade relacionada.
+
+%A segunda camada é muito poderosa e implementa diversas funcionalidades automaticamente tendo como base a modelagem definida pelo usuário. As customizações podem ser realizadas na modelagem dos dados, mas o número de customizações são finitas e enumeráveis, apesar de bastante poderosas e poderem ser usadas recursivamente.
+
+%Caso a segunda camada não seja o suficiente, é disponibilizado uma terceira camada de abstração. Nela, um conjunto de funcionalidades bastante comuns em aplicações web REST podem ser definidas. Nesta camada, várias funcionalidades poderão ser feitas baseando-se em um padrão descritivo, ou seja, ao invés de o desenvolvedor precisar chamar as funções disponibilizadas pelo \textit{MongoDB}, o próprio framework se encarregará de realizar esta chamada. A única coisa que o desenvolvedor precisará fazer é disponibilizar um objeto que contém a descrição do que ele deseja que seja feito. Esta descrição é algo bem enxuto, tendo em vista que o \textit{Alpha Restful} já conhece a forma pela qual os dados estão estruturados e já possui diversos dados e metadados sobre comportamentos específicos de cada valor salvo definido na camada de modelagem. As pesquisas implementadas nesta camada, por causa de sua abstração, são realizados da mesma maneira, independente dos dados estarem normalizados, desnormalizados ou parcialmente normalizados.
+
+\section{Objetivos}
+\subsection{Objetivo Geral}
+\subsection{Objetivos Específicos}
+
+\section{Organização do Trabalho}

@@ -1,0 +1,298 @@
+% MODELO LATEX PARA TCC DO IFCE 
+% ELABORADO POR CARINA TEIXEIRA DE OLIVEIRA
+% SETEMBRO DE 2017
+
+\documentclass[
+12pt, % tamanho da fonte
+openright, % capítulos começam em pág ímpar (insere página vazia caso preciso)
+oneside, % para impressão somente frente. Oposto a twoside (frente e verso)
+a4paper, % tamanho do papel. 
+% 	% -- opções do pacote babel --
+english,% idioma adicional para hifenização
+%french,% idioma adicional para hifenização
+%spanish,% idioma adicional para hifenização
+brazil,	% o último idioma é o principal do documento
+]{abntex2}
+
+% ------------------------
+% PACOTES
+% Mapear caracteres especiais no PDF
+\usepackage{cmap}
+% Usa a fonte Latin Modern
+\usepackage{times}			
+% Selecao de codigos de fonte.
+\usepackage[T1]{fontenc}		
+% Codificacao do documento (conversão automática dos acentos)
+\usepackage[utf8]{inputenc}		
+% Indenta o primeiro parágrafo de cada seção.
+\usepackage{indentfirst}		
+% Controle das cores
+\usepackage{color}
+\usepackage{soulutf8}
+% Inclusão de gráficos
+\usepackage{graphicx}			
+\usepackage{multicol}
+\usepackage{multirow}
+%capitulos
+\usepackage{titlesec}
+% Pacotes adicionais, usados apenas no âmbito do Modelo Canônico do abnteX2
+% para geração de dummy text
+\usepackage{lipsum}				
+% Pacotes de citações
+% Paginas com as citações na bibl
+\usepackage[brazilian,hyperpageref]{backref}	 
+% Citações padrão ABNT
+\usepackage[alf]{abntex2cite}	
+% Pacote para definir cor nas tabelas
+\usepackage[table,xcdraw]{xcolor}
+% Pacote usado para exibir blocos de códigos de programação
+\usepackage{listings}
+% Definindo as linguagens a serem exibidas com lstlisting
+\definecolor{mediumgray}{rgb}{0.3, 0.4, 0.4}
+\definecolor{mediumblue}{rgb}{0.0, 0.0, 0.8}
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+\definecolor{darkviolet}{rgb}{0.58, 0.0, 0.83}
+\definecolor{royalblue}{rgb}{0.25, 0.41, 0.88}
+\definecolor{crimson}{rgb}{0.86, 0.8, 0.24}
+\colorlet{punct}{red!60!black}
+\definecolor{background}{HTML}{EEEEEE}
+\definecolor{delim}{RGB}{20,105,176}
+\colorlet{numb}{magenta!60!black}
+\definecolor{json_base}{RGB}{0,50,0}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{HTML}{C42043}
+\definecolor{backcolour}{HTML}{F2F2F2}
+\definecolor{bookColor}{cmyk}{0,0,0,0.90}  
+\color{bookColor}
+
+\lstdefinelanguage{JavaScript}{
+  morekeywords=[1]{break, continue, delete, else, for, function, if, in,
+    new, return, this, typeof, var, void, while, with},
+  % Literals, primitive types, and reference types.
+  morekeywords=[2]{false, null, true, boolean, number, undefined,
+    Array, Boolean, Date, Math, Number, String, Object},
+  % Built-ins.
+  morekeywords=[3]{eval, parseInt, parseFloat, escape, unescape},
+  sensitive,
+  morecomment=[s]{/*}{*/},
+  morecomment=[l]//,
+  morecomment=[s]{/**}{*/}, % JavaDoc style comments
+  morestring=[b]',
+  morestring=[b]"
+}[keywords, comments, strings]
+
+\lstdefinelanguage[ECMAScript2015]{JavaScript}[]{JavaScript}{
+  morekeywords=[1]{await, async, case, catch, class, const, default, do,
+    enum, export, extends, finally, from, implements, import, instanceof,
+    let, static, super, switch, throw, try},
+  morestring=[b]` % Interpolation strings.
+}
+
+\lstalias[]{ES6}[ECMAScript2015]{JavaScript}
+
+\lstdefinestyle{JSES6Base}{
+  backgroundcolor=\color{white},
+  basicstyle=\ttfamily,
+  breakatwhitespace=false,
+  breaklines=false,
+  %captionpos=b,
+  columns=fullflexible,
+  commentstyle=\color{mediumgray}\upshape,
+  emph={},
+  emphstyle=\color{crimson},
+  extendedchars=true,  % requires inputenc
+  fontadjust=true,
+  frame=single,
+  identifierstyle=\color{black},
+  keepspaces=true,
+  keywordstyle=\color{mediumblue},
+  keywordstyle={[2]\color{darkviolet}},
+  keywordstyle={[3]\color{royalblue}},
+  numbers=left,
+  numbersep=5pt,
+  numberstyle=\tiny\color{black},
+  rulecolor=\color{black},
+  showlines=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  stringstyle=\color{forestgreen},
+  tabsize=2,
+  title=\lstname,
+  upquote=true  % requires textcomp
+}
+
+\lstdefinestyle{JavaScript}{
+  language=JavaScript,
+  style=JSES6Base
+}
+\lstdefinestyle{ES6}{
+  language=ES6,
+  style=JSES6Base
+}
+
+\lstdefinelanguage{json}{
+    basicstyle=\color{json_base}\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{white},
+    %captionpos=b,
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1}
+}
+
+\lstset{upquote=true}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{white},
+    frame=single,
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codepurple},
+    numberstyle=\numberstyle,
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize\ttfamily,
+    breakatwhitespace=false,
+    breaklines=true,
+    %captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+}
+\lstset{style=mystyle}
+
+\newcommand\numberstyle[1]{%
+    \footnotesize
+    \color{codegray}%
+    \ttfamily
+    \ifnum#1<10 0\fi#1 |%
+}
+% CONFIGURAÇÕES DE PACOTES
+% Configurações do pacote backref
+% Usado sem a opção hyperpageref de backref
+\renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
+% Texto padrão antes do número das páginas
+\renewcommand{\backref}{}
+%Define os textos da citação
+\renewcommand*{\backrefalt}[4]{
+	\ifcase #1 %
+		Nenhuma citação no texto.%
+	\or
+		Citado na página #2.%
+	\else
+		Citado #1 vezes nas páginas #2.%
+	\fi}
+
+% ------------------------
+% atalhos
+\titulo{TÍTULO DO TRABALHO: SUBTÍTULO (se houver)}
+\autor{Emanuel Moraes de Almeida}
+\local{Brasil}
+\data{25 de setembro de 2017}
+\instituicao{Instituto Federal de Educação, Ciência e Tecnologia do Ceará}
+\tipotrabalho{Trabalho de Conclusão de Curso (TCC)}
+% O preambulo deve conter o tipo do trabalho, o objetivo, o nome da instituição e a área de concentração 
+\preambulo{Modelo canônico de Relatório Técnico e/ou Científico em conformidade
+com as normas ABNT apresentado à comunidade de usuários \LaTeX.}
+
+
+% ------------------------
+% Configurações de aparência do PDF final
+% alterando o aspecto da cor azul
+\definecolor{blue}{RGB}{41,5,195}
+%informações do PDF
+\makeatletter
+\hypersetup{
+    %pagebackref=true,
+	pdftitle={\@title}, 
+	pdfauthor={\@author},
+    pdfsubject={\imprimirpreambulo},
+	pdfcreator={LaTeX with abnTeX2},
+	%pdfkeywords={abnt}{latex}{abntex}{abntex2}{relatório técnico}, 
+	colorlinks=true,% false: boxed links; true: colored links
+    linkcolor=blue,	% color of internal links
+    citecolor=blue,	% color of links to bibliography
+    filecolor=magenta, % color of file links
+	urlcolor=blue,
+	bookmarksdepth=4
+}
+\makeatother
+
+
+% ------------------------
+% Espaçamentos entre linhas e parágrafos 
+% O tamanho do parágrafo é dado por:
+\setlength{\parindent}{1.5cm}
+% Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{0.2cm}  % tente também \onelineskip
+
+% compila o indice
+\makeindex
+%\input{modeloCapitulos}
+
+\begin{document}
+
+%PARA UTILIZAR ARIAL
+\fontfamily{phv}  %fonte Arial
+\renewcommand{\rmdefault}{phv}      
+
+% Retira espaço extra obsoleto entre as frases.
+%\frenchspacing 
+\include{outrasFolhas/Capa}
+\include{outrasFolhas/FolhaRosto}
+%\include{outrasFolhas/FichaCatalografica}
+\include{outrasFolhas/Aprovacao}
+\include{outrasFolhas/Dedicatoria}
+\include{outrasFolhas/Agradecimentos}
+\include{outrasFolhas/Resumo}
+\include{outrasFolhas/Abstract}
+\include{outrasFolhas/ListaIlustracoes}
+\include{outrasFolhas/ListaTabelas}
+\include{outrasFolhas/ListaAbreviaturasSiglas}
+\include{outrasFolhas/Sumario}
+\textual
+
+%CAPITULOS
+\include{capitulos/Introducao}
+\include{capitulos/FundamentacaoTeorica}
+\include{capitulos/TrabalhosRelacionados}
+\include{capitulos/Metodologia}
+\include{capitulos/Resultados}
+\include{capitulos/Conclusoes}
+
+% ELEMENTOS PÓS-TEXTUAIS
+\postextual
+% Referências bibliográficas
+\bibliography{documento} 
+\include{outrasFolhas/Apendice} 
+\include{outrasFolhas/Anexos} 
+
+
+% INDICE REMISSIVO
+%\printindex
+
+\end{document}
+
