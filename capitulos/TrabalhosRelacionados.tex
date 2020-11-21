@@ -1,77 +1,77 @@
 \chapter{TRABALHOS RELACIONADOS}
-\label{Trabalhos Relacionados}
+\label{TrabalhosRelacionados}
 
-O \textit{MongoDB} é 
+O \textit{MongoDB} é um dos banco de dados NoSQL mais populares e utilizados. Isso pode ser demonstrado pela grande quantidade de citações a ele na literatura. Vários são os trabalhos que o comparam a outros banco de dados relacionais ou não relacionais. Os trabalhos de \citeonline{rautmare2016mysql}; \citeonline{seo2017performance}; \citeonline{grover2016mvm}; \citeonline{fatima2016comparison}; e \citeonline{ansari2018performance} fazem uma comparação de desempenho do \textit{MongoDB} com o banco de dados relacional \textit{MySql}. Neles são gerados gráficos e tabelas que medem o tempo de resposta de cada banco de dados, pela quantidade de dados teste usados em operações de leitura e escrita.
 
-\begin{itemize}
-    \item MySQL and NoSQL database comparison for IoT application (rautmare2016)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o  MongoDB e o MySql
-            \item Comparação de tempo de execução por quantidade de dados em operações leitura e escrita
-            \item Comparação de tempo de execução por threads em operações de leitura e escrita
-        \end{itemize}
-        
-    \item Performance Benchmarking and Comparison of Cloud-Based Databases MongoDB (NoSQL) Vs MySQL (Relational) using YCSB (pandey2020performance)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o  MongoDB e o MySql
-            \item Comparação de tempo de execução por threads em operações de leitura e escrita
-            \item Comparação de throughput (operações/segundo) em operações de leitura e escrita
-            \item Comparação de latência média por quantidade de operações em operações de leitura e escrita
-            \item Comparação de latência por throughput em operações de leitura e escrita
-            \item Comparação de throughput por threads
-        \end{itemize}
-        
-    \item Performance Comparison of CRUD Operations in IoT based Big Data Computing (seo2017performance)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o  MongoDB e o MySql
-            \item Comparação de tempo de execução por quantidade de dados em operações leitura e escrita
-        \end{itemize}
-        
-    \item MVM: MySQL Versus MongoDB (grover2016mvm)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o  MongoDB e o MySql
-            \item Comparação de tempo de execução por quantidade de dados em operações leitura e escrita
-        \end{itemize}
-        
-    \item A PERFORMANCE COMPARISON BETWEEN ORACLE AND MONGODB (moreno2016performance)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o MongoDB e Oracle
-            \item Comparação de tempo de execução por quantidade de dados em operações leitura e escrita
-        \end{itemize}
-        
-    \item Comparison of SQL, NoSQL and NewSQL Databases for Internet of Things (fatima2016)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o  MongoDB, o MySql e VoltDB (NewSQL)
-            \item Comparação de tempo de execução por quantidade de dados em operações leitura e escrita
-            \item Comparação por cliente único e múltiplo para operações únicas ou múltiplas
-            \item Utiliza dados de sensores (MG to GB) para simular ambiente de internet das coisas
-        \end{itemize}
-        
-    \item MongoDB, CouchBase: Performance Comparison for Image Dataset (chopade2017)
-    
-        \begin{itemize}
-            \item Comparação de performance entre dois banco de dados NoSQL: MongoDB e CouchBase
-            \item Comparação de tempo de execução por quantidade de dados em operações leitura e escrita
-            \item Utiliza imagens como dados de teste
-        \end{itemize}
-        
-    \item Performance Comparison of Two Database Management Systems: MySQL vs MongoDB (ansari2018performance)
-    
-        \begin{itemize}
-            \item Comparação de performance entre o  MongoDB e o MySql
-            \item Comparação de tamanho dos dados armazenados por quantidade de registros
-            \item Comparação de tempo de execução por quantidade de registros em simples e múltiplas operações de CRUD
-        \end{itemize}
-        
-    \item MongoDB and Oracle NoSQL: A technical critique for design decisions (anand2016mongodb)
-    
-        \begin{itemize}
-            \item Descreve as diferenças entre dois bancos de dados NoSQL: o  MongoDB e o Oracle NoSQL
-        \end{itemize}
-\end{itemize}
+Tais resultados demonstram um ganho significativo de performance do \textit{MongoDB} em vários casos de uso. Isto demonstra a relevância da ferramenta, principalmente em aplicações com grande quantidade de dados (\textit{Big Data}) e voltadas ao IoT. Dentre os trabalhos apresentados, \citeonline{fatima2016comparison} realizam testes com dados reais, visando simular um ambiente IoT, na qual existe a captura de uma grande quantidade de dados de sensores. Nele também é feito um comparativo com o banco de dados \textit{VoltBD}, que utiliza um novo modelo de banco de dados chamado de \textit{NewSQL}.
+
+Além desses, também pode ser citado o trabalho apresentado por \citeonline{pandey2020performance}, que realiza um comparativo mais completo que os apresentados anteriormente, analisando diversas \textit{cases} de teste diferentes. Tais testes também foram realizados sobre o \textit{MongoDB} e o \textit{MySql}, porém medindo o tempo de resposta por quantidade de \textit{threads} em execução, \textit{throughput} (operações/segundo) e latência média, em operações de leitura e escrita. Os resultados também demonstram uma vantagem do \textit{MongoDB} em vários cenários. Dentre os trabalhos apresentados anteriormente, comparativos usando cenários de várias \textit{threads} ou várias operações ao mesmo tempo também podem ser encontrados em \citeonline{rautmare2016mysql}; \citeonline{fatima2016comparison}; e \citeonline{ansari2018performance}.
+
+Outros trabalhos que realizam um comparativo com outros bancos de dados podem ser encontrados. \citeonline{moreno2016performance} fazem um comparativo com o banco de dados \textit{Oracle}. Já \citeonline{chopade2017mongodb}, realizam um comparativo com outro banco de dados NoSQL chamado de \textit{CouchBase}, utilizando dados de imagens como teste.
+
+As afirmativas feitas na introdução deste trabalho, sobre a dificuldade na implementação de operações sobre dados normalizados no \textit{MongoDB} em comparação com o SQL, são confirmadas por \citeonline{celesti2019study}. Neste trabalho relacionado, é exemplificado a implementação manual da junção de documentos usando o \textit{MongoDB}. A vantagem do SQL neste tipo de operação torna-se bastante clara. Tal resultado demonstra a necessidade e importância de \textit{APIs} e \textit{frameworks} tratarem tal operação, a fim de se obter mais performance e facilidade no desenvolvimento. Na seção \ref{section: juncao-documentos}, tal operação de junção será explicitada e alternativas à implementação manual feita por \citeonline{celesti2019study} serão demonstradas, por meio do uso de ferramentas externas ao \textit{MongoDB}.
+
+O \textit{survey} de \citeonline{davoudian2018survey}, assim como os trabalhos apresentados, confirmam as afirmativas deste trabalho da importância do NoSQL na aplicação e desenvolvimento de diversas aplicações, cujo o uso do modelo tradicional Relacional deixa a desejar. Em \citeonline{davoudian2018survey} podem ser encontradas mais informações e detalhes sobre o uso de bancos de \textit{NoSQL}, principalmente no escopo de aplicações distribuídas e escaláveis de forma horizontal.
+
+O \textit{MongoDB} armazena os dados de forma não estruturada, ou seja, nenhum \textit{schema} é necessário para que os dados sejam armazenados. Isto significa que cada documento no \textit{MongoDB} podem ter uma estrutura completamente diferente uma das outras. Esta abordagem permite que dados que não possuem um padrão pré estabelecido possa simplesmente ser armazenado, sem que os dados precisem, necessariamente, ser adaptados para um padrão definido anteriormente. Isto é bastante útil para diversas aplicações, porém, tamanha liberdade pode ser prejudicial em certos casos, onde a aplicação exija regras para os tipos de dados armazenados.
+
+Neste contexto, surge o \textit{Mongoose}. Tal ferramenta (demonstrada futuramente neste trabalho) permite, quando necessário, a criação de \textit{schemas}, ou seja, estruturas com regras na qual os dados precisam obedecer para serem armazenados. Assim como mostrado pelo quadro \ref{quad: livros_mongoose}, tal ferramenta é bastante citada em vários livros, demonstrando sua relevância para o desenvolvimento de aplicações com \textit{MongoDB}.
+
+% \begin{table}[h]
+% \caption{Livros que citam o \textit{Mongoose} \label{livros_mongoose}}
+% \begin{tabular}{@{}|l|l|@{}}
+% \toprule
+% \textbf{Título}                                  & \textbf{Autores}                 \\ \midrule
+% \textit{MERN Quick Start Guide}                           & \citeonline{wilson2018mern}      \\ \midrule
+% \textit{Web development with MongoDB and NodeJs}          & \citeonline{satheesh2015web}     \\ \midrule
+% \textit{Building Node. js REST API with TDD Approach}     & \citeonline{pandian2018building} \\ \midrule
+% \textit{Full Stack JavaScript}                            & \citeonline{mardan2018intro}     \\ \midrule
+% \textit{Mongoose for Application Development}             & \citeonline{holmes2013mongoose}  \\ \midrule
+% \textit{Node. js, MongoDB, and AngularJS web development} & \citeonline{dayley2014node}      \\ \midrule
+% \textit{JavaScript Frameworks for Modern Web Development} & \citeonline{bin2019mongoose}     \\ \bottomrule
+% \end{tabular}
+% \end{table}
+
+\begin{quadro}[h]
+\caption{Livros que citam o \textit{Mongoose} \label{quad: livros_mongoose}}
+\begin{tabular}{|l|l|}
+\hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{\textbf{Título}}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\small{\textbf{Autores}}\end{tabular} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{MERN Quick Start Guide}\end{tabular} & \small{\citeonline{wilson2018mern}} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{Web development with MongoDB and NodeJs}\end{tabular} & \small{\citeonline{satheesh2015web}} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{Building Node. js REST API with TDD Approach}\end{tabular} & \small{\citeonline{pandian2018building}} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{Full Stack JavaScript}\end{tabular} & \small{\citeonline{mardan2018intro}} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{Mongoose for Application Development}\end{tabular} & \small{\citeonline{holmes2013mongoose}} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{Node. js, MongoDB, and AngularJS web development}\end{tabular} & \small{\citeonline{dayley2014node}} \\ \hline
+\def\arraystretch{1.5}
+\begin{tabular}[c]{@{}l@{}}\small{JavaScript Frameworks for Modern Web Development}\end{tabular} & \small{\citeonline{bin2019mongoose}} \\ \hline
+\end{tabular}
+\end{quadro}
+
+% \begin{longtable}[]{|l|l|}
+% \caption{Livros que citam o \textit{Mongoose} \label{livros_mongoose}}\tabularnewline
+% \toprule
+% \textbf{Título} & \textbf{Autores}\tabularnewline
+% \midrule
+% \endfirsthead
+% \toprule
+% \textbf{Título} & \textbf{Autores}\tabularnewline
+% \midrule
+% \endhead
+% MERN Quick Start Guide & \citeonline{wilson2018mern}\tabularnewline\hline%\addlinespace
+% Web development with MongoDB and NodeJs & \citeonline{satheesh2015web}\tabularnewline\hline%\addlinespace
+% Building Node. js REST API with TDD Approach & \citeonline{pandian2018building}\tabularnewline\hline%\addlinespace
+% Full Stack JavaScript & \citeonline{mardan2018intro}\tabularnewline\hline%\addlinespace
+% Mongoose for Application Development & \citeonline{holmes2013mongoose}\tabularnewline\hline%\addlinespace
+% Node. js, MongoDB, and AngularJS web development & \citeonline{dayley2014node}\tabularnewline\hline%\addlinespace
+% JavaScript Frameworks for Modern Web Development & \citeonline{bin2019mongoose}\tabularnewline
+% \bottomrule
+% % \caption*{Fonte: O autor (2020)}
+% \end{longtable}

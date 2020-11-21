@@ -33,6 +33,9 @@ brazil,	% o último idioma é o principal do documento
 \usepackage{graphicx}			
 \usepackage{multicol}
 \usepackage{multirow}
+% Criação de tabelas
+\usepackage{longtable}
+% \usepackage{booktabs}
 %capitulos
 \usepackage{titlesec}
 % Pacotes adicionais, usados apenas no âmbito do Modelo Canônico do abnteX2
@@ -47,6 +50,19 @@ brazil,	% o último idioma é o principal do documento
 \usepackage[table,xcdraw]{xcolor}
 % Pacote usado para exibir blocos de códigos de programação
 \usepackage{listings}
+\usepackage{chngcntr}
+\lstset{frame=Trbl,numbers=left}
+\renewcommand{\lstlistingname}{Exemplo}
+\renewcommand{\lstlistlistingname}{Lista de \lstlistingname s}
+% Pacote e configurações para quadros
+\newcommand{\quadroname}{Quadro}
+\newcommand{\listofquadrosname}{Lista de Quadros}
+\newfloat{quadro}{loq}{\quadroname}
+\setfloatadjustment{quadro}{\centering}
+\newlistof{listofquadros}{loq}{\listofquadrosname}
+\newlistentry{quadro}{loq}{0}
+\renewcommand{\cftquadroname}{\quadroname\space}
+\renewcommand{\cftquadroaftersnum}{\hfill\textendash\hfill}
 % Definindo as linguagens a serem exibidas com lstlisting
 \definecolor{mediumgray}{rgb}{0.3, 0.4, 0.4}
 \definecolor{mediumblue}{rgb}{0.0, 0.0, 0.8}
@@ -190,6 +206,7 @@ brazil,	% o último idioma é o principal do documento
     \ttfamily
     \ifnum#1<10 0\fi#1 |%
 }
+
 % CONFIGURAÇÕES DE PACOTES
 % Configurações do pacote backref
 % Usado sem a opção hyperpageref de backref
@@ -255,6 +272,16 @@ com as normas ABNT apresentado à comunidade de usuários \LaTeX.}
 
 \begin{document}
 
+% contagem de lstlisting sem dependência
+\counterwithout{lstlisting}{section}
+
+% lista de exemplos seguindo o padrão
+\newlistof{lstlistoflistings}{lol}{\lstlistlistingname}
+% \newlistof{lstlistoflistings}{lol}{\cftlstlistlistingname}
+\newlistentry{lstlisting}{lol}{0}
+\renewcommand{\cftlstlistingname}{\lstlistingname\space}
+\renewcommand{\cftlstlistingaftersnum}{\hfill\textendash\hfill}
+
 %PARA UTILIZAR ARIAL
 \fontfamily{phv}  %fonte Arial
 \renewcommand{\rmdefault}{phv}      
@@ -265,20 +292,22 @@ com as normas ABNT apresentado à comunidade de usuários \LaTeX.}
 \include{outrasFolhas/FolhaRosto}
 %\include{outrasFolhas/FichaCatalografica}
 \include{outrasFolhas/Aprovacao}
-\include{outrasFolhas/Dedicatoria}
-\include{outrasFolhas/Agradecimentos}
+% \include{outrasFolhas/Dedicatoria}
+% \include{outrasFolhas/Agradecimentos}
 \include{outrasFolhas/Resumo}
 \include{outrasFolhas/Abstract}
-\include{outrasFolhas/ListaIlustracoes}
+% \include{outrasFolhas/ListaIlustracoes}
 \include{outrasFolhas/ListaTabelas}
+\include{outrasFolhas/ListaQuadros}
+\include{outrasFolhas/ListaExemplos}
 \include{outrasFolhas/ListaAbreviaturasSiglas}
 \include{outrasFolhas/Sumario}
 \textual
 
 %CAPITULOS
 \include{capitulos/Introducao}
-\include{capitulos/FundamentacaoTeorica}
 \include{capitulos/TrabalhosRelacionados}
+\include{capitulos/FundamentacaoTeorica}
 \include{capitulos/Metodologia}
 \include{capitulos/Resultados}
 \include{capitulos/Conclusoes}
@@ -287,9 +316,8 @@ com as normas ABNT apresentado à comunidade de usuários \LaTeX.}
 \postextual
 % Referências bibliográficas
 \bibliography{documento} 
-\include{outrasFolhas/Apendice} 
-\include{outrasFolhas/Anexos} 
-
+% \include{outrasFolhas/Apendice} 
+% \include{outrasFolhas/Anexos} 
 
 % INDICE REMISSIVO
 %\printindex
