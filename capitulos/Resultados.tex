@@ -623,9 +623,10 @@ Para que as funcionalidades do \textit{framework} sejam disponibilizadas, o \tex
 % \newpage
 
 \begin{lstlisting}[style=ES6, caption={Definição de \textit{Schemas} no \textit{Alpha Restful}\label{lst: schemas-sync-alpha-restful}}]
-    const restful = new Restful("<nome-da-aplicacao>", {
-        locale: "pt"
-    })
+    const restful = new Restful(
+        "<nome-da-aplicacao>",
+        { locale: "pt" }
+    )
 
     const Pessoa = new Entity({
         name: "Pessoa",
