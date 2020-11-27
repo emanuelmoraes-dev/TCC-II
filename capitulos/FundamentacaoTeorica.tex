@@ -256,7 +256,7 @@ Chave Primária & Pessoa & Casa & Valor Mensal & Quantidade de Meses & Total\tab
 Para este caso, a relação \ref{tab: atributos-relacionamento} não está na terceira forma normal, pois o atributo \textit{Total} é dependente do \textit{Valor Mensal} e da \textit{Quantidade de Meses}. O \textit{Total} pode ser obtido através de uma busca no banco de dados, realizando uma simples multiplicação do \textit{Valor Mensal} e da \textit{Quantidade de Meses}. Para que esta relação fique de acordo com a Terceira Forma Normal é necessário remover a última coluna, assim como apresentado na tabela \ref{tab: total-a-pagar-removido}.
     
 \begin{longtable}[]{@{}lllll@{}}
-\caption{``Total'' Removido \label{tab: total-a-pagar-removido}}\tabularnewline
+\caption{Relacionamento sem o ``Total'' \label{tab: total-a-pagar-removido}}\tabularnewline
 \toprule
 Chave Primária & Pessoa & Casa & Valor Mensal & Quantidade de Meses\tabularnewline
 \midrule
