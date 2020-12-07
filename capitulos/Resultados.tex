@@ -793,9 +793,9 @@ Como na modelagem da entidade Casa o relacionamento com pessoa não foi definido
 	casas = await Casa.fill(casas, restful)
 \end{lstlisting}
 
-\subsubsection{Relacionamento Inverso do Relacionamento Inverso}
+\subsubsection{Relacionamento Transitivo}
 
-Outra funcionalidade disponibilizada pelo \textit{Alpha Restful} que, atualmente, não está disponível nos outros métodos de junção de documentos mostrados (com exceção do método manual), é o relacionamento inverso do relacionamento inverso. Uma forma de ilustrar esta função é tentar obter, no documento das pessoas, a lista de moradores de uma ou mais casas que a própria pessoa também mora. Para isto, bastaria fazer um relacionamento inverso do atributo ``pessoas'' em casas, assim como definido no exemplo \ref{lst: schemas-sync-alpha-restful-relacionamento-inverso-de-relacionamento-inverso}.
+Outra funcionalidade disponibilizada pelo \textit{Alpha Restful} que, atualmente, não está disponível nos outros métodos de junção de documentos mostrados (com exceção do método manual), é o relacionamento transitivo. Uma forma de ilustrar esta função é tentar obter, no documento das pessoas, a lista de moradores de uma ou mais casas que a própria pessoa também mora. Para isto, bastaria fazer um relacionamento do atributo ``pessoas'' em casas, assim como definido no exemplo \ref{lst: schemas-sync-alpha-restful-relacionamento-inverso-de-relacionamento-inverso}.
 
 \begin{lstlisting}[style=ES6, caption={Relacionamento Inverso de Relacionamento Inverso \label{lst: schemas-sync-alpha-restful-relacionamento-inverso-de-relacionamento-inverso}}]
     const restful = new Restful("<nome-da-aplicacao>", {
