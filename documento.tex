@@ -35,6 +35,8 @@ brazil,	% o último idioma é o principal do documento
 \usepackage{multirow}
 % Criação de tabelas
 \usepackage{longtable}
+\usepackage{booktabs}
+\newcommand{\tabitem}{~~\llap{\textbullet}~~} % item falso de lista
 % \usepackage{booktabs}
 %capitulos
 \usepackage{titlesec}
@@ -225,10 +227,10 @@ brazil,	% o último idioma é o principal do documento
 
 % ------------------------
 % atalhos
-\titulo{TÍTULO DO TRABALHO: SUBTÍTULO (se houver)}
+\titulo{\textit{Alpha} \textit{Restful}: Um \textit{Framework} para Otimizações na Implementação de Funcionalidades Sobre Dados Normalizados no \textit{MongoDB}}
 \autor{Emanuel Moraes de Almeida}
 \local{Brasil}
-\data{25 de setembro de 2017}
+\data{\today}
 \instituicao{Instituto Federal de Educação, Ciência e Tecnologia do Ceará}
 \tipotrabalho{Trabalho de Conclusão de Curso (TCC)}
 % O preambulo deve conter o tipo do trabalho, o objetivo, o nome da instituição e a área de concentração 
@@ -306,8 +308,8 @@ com as normas ABNT apresentado à comunidade de usuários \LaTeX.}
 
 %CAPITULOS
 \include{capitulos/Introducao}
-\include{capitulos/TrabalhosRelacionados}
 \include{capitulos/FundamentacaoTeorica}
+\include{capitulos/TrabalhosRelacionados}
 \include{capitulos/Metodologia}
 \include{capitulos/Resultados}
 \include{capitulos/Conclusoes}
