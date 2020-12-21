@@ -1,10 +1,10 @@
 \chapter{RESULTADOS}
 \label{Resultados}
 
-O \textit{Alpha Restful} facilita e automatiza a implementação de 5 funcionalidades \hl{sobre dados normalizados} que,
+O \textit{Alpha Restful} facilita e automatiza a implementação de 5 funcionalidades sobre dados normalizados que,
 muitas vezes,
 %por causa dos motivos descritos\footnote{Emanuel: referenciar a seção} anteriormente,
-são complexas de serem desenvolvidas no \textit{MongoDB}, sem o uso de um \textit{framework}. Para cada funcionalidade, \hl{será feito uma comparação, explicando sua implementação usando soluções de mercado} e, posteriormente, \hl{é apresentado a implementação usando o \textit{Alpha Restful}}. \hl{O quadro} \ref{quad: comparacao-funcionalidades} \hl{mostra quais soluções serão apresentadas para cada funcionalidade.} Para a \hl{implementação} destas funcionalidades, será utilizado como base a modelagem de dados exemplificada pelos documentos exemplo \ref{lst: doc-casa-1b}, \ref{lst: doc-casa-1089}, \ref{lst: doc-pessoa-eduardo} e \ref{lst: doc-pessoa-emanuel}.
+são complexas de serem desenvolvidas no \textit{MongoDB}, sem o uso de um \textit{framework}. Para cada funcionalidade, será feito uma comparação, explicando sua implementação usando soluções de mercado e, posteriormente, é apresentado a implementação usando o \textit{Alpha Restful}. O quadro \ref{quad: comparacao-funcionalidades} mostra quais soluções serão apresentadas para cada funcionalidade. Para a implementação destas funcionalidades, será utilizado como base a modelagem de dados exemplificada pelos documentos exemplo \ref{lst: doc-casa-1b}, \ref{lst: doc-casa-1089}, \ref{lst: doc-pessoa-eduardo} e \ref{lst: doc-pessoa-emanuel}.
 
 \begin{quadro}[h]
 \centering
@@ -227,7 +227,7 @@ Pode-se observar que a implementação feita para obter uma simples junção de 
 
 \subsection{\textit{DBRef}}
 
-O \textit{DBRef} é um padrão para referenciar outros documentos de outras coleções. Essa convenção tem a finalidade de armazenar o nome da coleção relacionada (\textit{\$ref}), o identificador do documento (\textit{\$id}) e o nome do banco de dados na qual essa coleção está contida (\textit{\$db}). Se o \textit{\$db} não for informado, assume-se que a coleção está presente no banco de dados do documento que o \textit{DBRef} reside. No exemplo a qual está sendo tratado, o \textit{DBRef} pode ser utilizado para \hl{que} as pessoas registradas no sistema \hl{possam} se relacionar com suas casas, assim como demonstrado nos exemplos \ref{lst: doc-dbref-eduardo} e \ref{lst: doc-dbref-emanuel}.
+O \textit{DBRef} é um padrão para referenciar outros documentos de outras coleções. Essa convenção tem a finalidade de armazenar o nome da coleção relacionada (\textit{\$ref}), o identificador do documento (\textit{\$id}) e o nome do banco de dados na qual essa coleção está contida (\textit{\$db}). Se o \textit{\$db} não for informado, assume-se que a coleção está presente no banco de dados do documento que o \textit{DBRef} reside. No exemplo a qual está sendo tratado, o \textit{DBRef} pode ser utilizado para que as pessoas registradas no sistema possam se relacionar com suas casas, assim como demonstrado nos exemplos \ref{lst: doc-dbref-eduardo} e \ref{lst: doc-dbref-emanuel}.
 
 % \newpage
 
@@ -435,7 +435,7 @@ Por causa disso, o uso do \textit{DBRef} pode exigir codificações mais complex
 
 \subsection{\textit{Populate} do \textit{Mongoose}}
 
-\hl{É possível, através da biblioteca \textit{Mongoose}, unir documentos normalizados em um único documento resultante. Para que tal operação seja possível, no \textit{Mongoose}, torna-se necessário a implementação de \textit{schemas} para cada coleção de documentos gerenciada pela biblioteca}. Para o exemplo que está sendo apresentado, os \textit{schemas} para as coleções de pessoas e casas podem ser definidos, assim como demonstrado no exemplo \ref{lst: schema-mongoose}.
+É possível, através da biblioteca \textit{Mongoose}, unir documentos normalizados em um único documento resultante. Para que tal operação seja possível, no \textit{Mongoose}, torna-se necessário a implementação de \textit{schemas} para cada coleção de documentos gerenciada pela biblioteca. Para o exemplo que está sendo apresentado, os \textit{schemas} para as coleções de pessoas e casas podem ser definidos, assim como demonstrado no exemplo \ref{lst: schema-mongoose}.
 
 % \newpage
 
@@ -639,7 +639,7 @@ O \textit{Alpha Restful} possui sua própria implementação para unir os docume
 	\item Relacionamento inverso de relacionamento inverso
 \end{itemize}
 
-Para que as funcionalidades do \textit{framework} sejam disponibilizadas, o \textit{Alpha Restful} utiliza os \textit{schemas} do \textit{Mongoose}, em conjunto com especificações de sincronização (\textit{sync}) entre as entidades. Essas especificações de sincronização permitem que entidades sejam relacionadas entres si, \hl{baseando-se} em identificadores e em outros tipos de relacionamentos (que não serão explicados por fugir do escopo desse trabalho). O exemplo \ref{lst: schemas-sync-alpha-restful} apresenta uma codificação para criar os \textit{schemas} e especificações de sincronização das entidades Pessoa e Casa, usando o \textit{Alpha Restful}.
+Para que as funcionalidades do \textit{framework} sejam disponibilizadas, o \textit{Alpha Restful} utiliza os \textit{schemas} do \textit{Mongoose}, em conjunto com especificações de sincronização (\textit{sync}) entre as entidades. Essas especificações de sincronização permitem que entidades sejam relacionadas entres si, baseando-se em identificadores e em outros tipos de relacionamentos (que não serão explicados por fugir do escopo desse trabalho). O exemplo \ref{lst: schemas-sync-alpha-restful} apresenta uma codificação para criar os \textit{schemas} e especificações de sincronização das entidades Pessoa e Casa, usando o \textit{Alpha Restful}.
 
 % \newpage
 
@@ -682,7 +682,7 @@ Para que as funcionalidades do \textit{framework} sejam disponibilizadas, o \tex
     restful.add(Casa)
 \end{lstlisting}
 
-Para a junção de documentos, o \textit{Alpha Restful} disponibiliza uma opção denominada de \textit{fill}\hl{, que implementa essa funcionalidade} sobre qualquer objeto já pesquisado ou montado. \hl{Essa opção também possibilita que}, em tempo de execução, relacionamentos temporários com outras entidades \hl{possam ser criados}. O exemplo \ref{lst: juncao-alpha-restful} realiza uma junção de documentos sobre as pessoas e casas, usando a modelagem definida \hl{no exemplo} \ref{lst: schemas-sync-alpha-restful}.
+Para a junção de documentos, o \textit{Alpha Restful} disponibiliza uma opção denominada de \textit{fill}, que implementa essa funcionalidade sobre qualquer objeto já pesquisado ou montado. Essa opção também possibilita que, em tempo de execução, relacionamentos temporários com outras entidades possam ser criados. O exemplo \ref{lst: juncao-alpha-restful} realiza uma junção de documentos sobre as pessoas e casas, usando a modelagem definida no exemplo \ref{lst: schemas-sync-alpha-restful}.
 
 \begin{lstlisting}[style=ES6, caption={Junção de Documentos Com o \textit{Alpha Restful}\label{lst: juncao-alpha-restful}}]
 	let pessoas = await Pessoa.model.find({}).exec()
@@ -880,7 +880,7 @@ Os \textit{schemas} definidos no exemplo \ref{lst: schemas-sync-alpha-restful-re
 	pessoas = await Pessoa.fill(pessoas, restful)
 \end{lstlisting}
 
-Por causa do relacionamento \hl{transitivo}, a \hl{junção} de documentos por meio do \textit{Alpha Restful} \hl{se torna mais simples de implementar em comparação que as outras soluções descritas anteriormente}. Ao final da execução do código exemplo \ref{lst: juncao-alpha-restful-relacionamento-inverso-do-relacionamento-inverso}, a variável ``pessoas'' terá o resultado do exemplo \ref{lst: resultado-juncao-alpha-restful-relacionamento-inverso-do-relacionamento-inverso}.
+Por causa do relacionamento transitivo, a junção de documentos por meio do \textit{Alpha Restful} se torna mais simples de implementar em comparação que as outras soluções descritas anteriormente. Ao final da execução do código exemplo \ref{lst: juncao-alpha-restful-relacionamento-inverso-do-relacionamento-inverso}, a variável ``pessoas'' terá o resultado do exemplo \ref{lst: resultado-juncao-alpha-restful-relacionamento-inverso-do-relacionamento-inverso}.
 
 \begin{lstlisting}[language=json, caption={Resultado da Junção de Documentos Com Residentes\label{lst: resultado-juncao-alpha-restful-relacionamento-inverso-do-relacionamento-inverso}}]
 [{
@@ -1048,7 +1048,7 @@ Para a realização de uma pesquisa dessa complexidade, é necessário unir os d
 
 \subsection{Pesquisa Manual\label{subsection: pesquisa-manual}}
     
-Também é possível realizar a pesquisa proposta de forma manual. Para isso, pode-se subdividir a pesquisa em pesquisas menores. Logo após, basta uni-las em uma pesquisa que irá obter o resultado esperado. O exemplo \ref{lst: busca-manual} apresenta uma codificação utilizando esta abordagem, sendo necessário \hl{31} linhas de código.
+Também é possível realizar a pesquisa proposta de forma manual. Para isso, pode-se subdividir a pesquisa em pesquisas menores. Logo após, basta uni-las em uma pesquisa que irá obter o resultado esperado. O exemplo \ref{lst: busca-manual} apresenta uma codificação utilizando esta abordagem, sendo necessário 31 linhas de código.
 
 %\newpage
 
@@ -1100,11 +1100,11 @@ Como observado nas seções \ref{subsection: pesquisa-lookup-match} e \ref{subse
     }, Casa);
 \end{lstlisting}
     
-Anteriormente, para a realização dessa pesquisa, foi necessário entre 31 (exemplo \ref{lst: busca-manual}) e 67 (exemplo \ref{lst: busca-lookup-match}) linhas, mas com o \textit{Alpha Restful}, apenas 3 linhas foram o suficiente. Isso ocorre porque o \textit{Alpha Restful} consegue enxergar todos os atributos presentes em outros documentos normalizados, como se eles estivessem dentro do documento de maneira desnormalizada. A sintaxe utilizada para realizar buscas \hl{foi inspirada no \textit{Mongoose}}, com a diferença de considerar nas pesquisas os atributos contidos em outros documentos relacionados.
+Anteriormente, para a realização dessa pesquisa, foi necessário entre 31 (exemplo \ref{lst: busca-manual}) e 67 (exemplo \ref{lst: busca-lookup-match}) linhas, mas com o \textit{Alpha Restful}, apenas 3 linhas foram o suficiente. Isso ocorre porque o \textit{Alpha Restful} consegue enxergar todos os atributos presentes em outros documentos normalizados, como se eles estivessem dentro do documento de maneira desnormalizada. A sintaxe utilizada para realizar buscas foi inspirada no \textit{Mongoose}, com a diferença de considerar nas pesquisas os atributos contidos em outros documentos relacionados.
 
 \section{Funcionalidade 3: Remoção em Cascata de Documentos\label{section: remocao-cascata-documentos-relacionados}}
     
-No exemplo a qual está sendo abordado, pode-se supor que, por exemplo, o sistema possua uma regra de negócio que afirme que quando uma pessoa for removida, todas as casas pertencentes a ela devam ser removidas também. Para a implementação de tal regra, sem o uso de um \textit{framework}, toda vez que uma pessoa for removida, será necessário buscar por todas as casas pertencentes a ela \hl{e, manualmente, removê-las}. O problema desta abordagem manual é que uma coleção pode possuir cada vez mais relacionamentos com outros documentos, deixando o código cada vez mais complexo.
+No exemplo a qual está sendo abordado, pode-se supor que, por exemplo, o sistema possua uma regra de negócio que afirme que quando uma pessoa for removida, todas as casas pertencentes a ela devam ser removidas também. Para a implementação de tal regra, sem o uso de um \textit{framework}, toda vez que uma pessoa for removida, será necessário buscar por todas as casas pertencentes a ela e, manualmente, removê-las. O problema desta abordagem manual é que uma coleção pode possuir cada vez mais relacionamentos com outros documentos, deixando o código cada vez mais complexo.
 
 Pensando nisto, o \textit{Alpha Restful} disponibiliza uma opção na sincronização das entidades (\textit{sync}), que implementa exatamente esta funcionalidade. Para garantir este comportamento, é necessário apenas informar a opção \textit{deleteCascade} no atributo da entidade a qual deseja-se que seja removida automaticamente. No exemplo \ref{lst: delete-cascade-alpha-restful} é apresentada tal implementação.
 
@@ -1149,7 +1149,7 @@ Para que esta regra seja aplicada de forma mais simples, o \textit{Alpha Restful
 
 \section{Funcionalidade 5: Remoção de Identificadores Inválidos\label{section: identificadores-apontando-para-lixo}}
 
-Um dos possíveis problemas que podem ser comuns no desenvolvimento de uma aplicação com \textit{MongoDB}, é a existência de identificadores que apontam para documentos que não existem. Isto acontece porque as entidades que possuem um identificador de outra entidade que foi removida do banco, podem continuar com esse identificador. Um exemplo que pode ser apresentado é de que se uma casa for removida, isso pode fazer com que o identificador dessa casa nos documentos da coleção de pessoas \hl{aponte} para lugar algum, pois a casa a qual tais identificadores apontam, já não existe mais.
+Um dos possíveis problemas que podem ser comuns no desenvolvimento de uma aplicação com \textit{MongoDB}, é a existência de identificadores que apontam para documentos que não existem. Isto acontece porque as entidades que possuem um identificador de outra entidade que foi removida do banco, podem continuar com esse identificador. Um exemplo que pode ser apresentado é de que se uma casa for removida, isso pode fazer com que o identificador dessa casa nos documentos da coleção de pessoas aponte para lugar algum, pois a casa a qual tais identificadores apontam, já não existe mais.
     
 Para que este problema seja contornado, sem o uso de um \textit{framework}, é necessário que antes que qualquer entidade seja removida, seja realizada uma análise em todas as entidades que se relacionam com a instância a qual deseja-se remover. Após esta análise, os dados que apontariam para esta entidade que está sendo removida seriam removidos também. Com o aumento da complexidade da aplicação, esse código ficaria cada vez mais e mais complexo, pois a cada novo relacionamento entre documentos, mais alterações precisariam ser feitas no código para garantir esse comportamento. O \textit{Alpha Restful} já resolve esse problema automaticamente (bastando apenas realizar o procedimento descrito na seção \ref{section: delete-sync}). Nenhuma opção precisa ser habilitada na modelagem para que esse problema seja mitigado.
 
